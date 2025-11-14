@@ -1,15 +1,23 @@
 <?php
-// Require authentication and admin role before sending any output
+// Require authentication - admin dan admintl bisa akses
 include_once __DIR__ . '/../auth.php';
 require_login();
-if (!is_admin()) {
-    header('Location: user/dashboard.php');
-    exit;
-}
+require_admin_or_admintl();
 
 include '../db/db.php';
 // load partials helper for render_partial()
 include_once __DIR__ . '/partials/_init.php';
+
+// Helper function to format jenis premi display
+function formatJenisPremiDisplay($jenisValue)
+{
+    $jenisMap = array(
+        '1' => 'JHT Regular',
+        '2' => 'PKP Regular',
+        '3' => 'JHT Topup'
+    );
+    return isset($jenisMap[$jenisValue]) ? $jenisMap[$jenisValue] : $jenisValue;
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -61,13 +69,13 @@ include_once __DIR__ . '/partials/_init.php';
                                     <tr>
                                         <th class="text-center align-middle">No</th>
                                         <th class="text-center align-middle">Periode</th>
-                                        <th class="text-center align-middle">Jenis</th>
+                                        <th class="text-center align-middle">Jenis Invoice</th>
                                         <th class="text-center align-middle">Jumlah Peserta</th>
                                         <th class="text-center align-middle">Total Premi Karyawan</th>
                                         <th class="text-center align-middle">Total Premi PT</th>
                                         <th class="text-center align-middle">Total Premi</th>
                                         <th class="text-center align-middle">Tanggal Upload</th>
-                                        <th class="text-center align-middle">Status</th>
+                                        <th class="text-center align-middle">Status Approval</th>
                                         <th class="text-center align-middle">Aksi</th>
                                     </tr>
                                 </thead>
@@ -112,7 +120,7 @@ include_once __DIR__ . '/partials/_init.php';
                                 <tr>
                                     <th class="text-center align-middle">No</th>
                                     <th class="text-center align-middle">Periode</th>
-                                    <th class="text-center align-middle">Jenis Premi</th>
+                                    <th class="text-center align-middle">Jenis Invoice</th>
                                     <th class="text-center align-middle">Jumlah Premi Karyawan</th>
                                     <th class="text-center align-middle">Jumlah Premi PT</th>
                                     <th class="text-center align-middle">Total Premi</th>
@@ -152,19 +160,25 @@ include_once __DIR__ . '/partials/_init.php';
                                         // Total Premi
                                         $total = is_numeric($row['total_premi']) ? 'Rp ' . number_format((float)$row['total_premi'], 2, ',', '.') : htmlspecialchars($row['total_premi']);
                                         echo '<td class="text-center">' . $total . '</td>';
-                                        // approval button (status_data)
+                                        // approval button (status_data) - hanya AdminTL yang bisa click
                                         $approved = !empty($row['status_data']) ? 1 : 0;
                                         $btnClass = $approved
                                             ? 'px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800'
                                             : 'px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800';
                                         $btnLabel = $approved ? 'Approved' : 'Not Approved';
                                         $id = (int)$row['id'];
-                                        echo '<td class="text-center align-middle"><span class="approve-btn cursor-pointer inline-flex items-center justify-center w-full h-full ' . $btnClass . '" style="min-width:110px;display:flex;align-items:center;justify-content:center;" data-id="' . $id . '" data-status="' . $approved . '">' . $btnLabel . '</span></td>';
-                                        // Kolom aksi: tombol edit & hapus
-                                        echo '<td class="text-center">
-                                            <button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:2px;" title="Edit" data-id="' . $id . '"><i class="fa-solid fa-pen-to-square"></i></button>
-                                            <button class="btn-delete-data transition" style="margin-left:2px;" title="Hapus" data-id="' . $id . '"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>
-                                        </td>';
+                                        $isAdminTL = is_admintl();
+                                        $btnAttrs = $isAdminTL ? 'class="approve-btn cursor-pointer inline-flex items-center justify-center w-full h-full ' . $btnClass . '" style="min-width:110px;display:flex;align-items:center;justify-content:center;" data-id="' . $id . '" data-status="' . $approved . '"' : 'class="inline-flex items-center justify-center w-full h-full ' . $btnClass . '" style="min-width:110px;display:flex;align-items:center;justify-content:center;cursor:not-allowed;"';
+                                        echo '<td class="text-center align-middle"><span ' . $btnAttrs . '>' . $btnLabel . '</span></td>';
+                                        // Kolom aksi: tombol edit & hapus (hanya untuk admin)
+                                        if (is_admin()) {
+                                            echo '<td class="text-center">
+                                                <button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:2px;" title="Edit" data-id="' . $id . '"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button class="btn-delete-data transition" style="margin-left:2px;" title="Hapus" data-id="' . $id . '"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>
+                                            </td>';
+                                        } else {
+                                            echo '<td class="text-center text-gray-400"><i class="fa-solid fa-lock" title="Tidak ada akses"></i></td>';
+                                        }
                                         echo '</tr>' . PHP_EOL;
                                     }
                                     mysqli_free_result($res);
@@ -181,6 +195,11 @@ include_once __DIR__ . '/partials/_init.php';
     </div>
 
     <?php render_partial('footer'); ?>
+
+    <!-- Pass user role to JavaScript -->
+    <script>
+        var userRole = '<?php echo isset($_SESSION['user_role']) ? htmlspecialchars($_SESSION['user_role']) : 'user'; ?>';
+    </script>
 
     <!-- jQuery + DataTables JS (CDN) -->
     <script src="../assets/js/jquery-3.6.0.min.js"></script>

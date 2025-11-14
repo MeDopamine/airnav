@@ -5,30 +5,50 @@
  */
 $mobile = isset($mobile) ? (bool)$mobile : false;
 
+// Get current user info
+$user = current_user();
+$userRole = $user['role'] ?? 'user';
+
 $menuItems = [
     [
         'label' => 'Dashboard',
         'href' => 'index.php',
-        'icon' => '<i class="fa-solid fa-chart-pie mr-3" aria-hidden="true"></i>'
+        'icon' => '<i class="fa-solid fa-chart-pie mr-3" aria-hidden="true"></i>',
+        'visible_to' => ['admin', 'admintl']
     ],
     [
         'label' => 'Data Peserta',
         'href' => 'data_peserta.php',
-        'icon' => '<i class="fa-solid fa-users mr-3" aria-hidden="true"></i>'
+        'icon' => '<i class="fa-solid fa-users mr-3" aria-hidden="true"></i>',
+        'visible_to' => ['admin', 'admintl']
     ],
     [
         'label' => 'Manajemen Invoice',
         'href' => 'manajemen_invoice.php',
-        'icon' => '<i class="fa-solid fa-file-invoice mr-3" aria-hidden="true"></i>'
+        'icon' => '<i class="fa-solid fa-file-invoice mr-3" aria-hidden="true"></i>',
+        'visible_to' => ['admintl']
     ],
     [
         'label' => 'Manajemen Peserta',
         'href' => 'manajemen_peserta.php',
-        'icon' => '<i class="fa-solid fa-user-cog mr-3" aria-hidden="true"></i>'
+        'icon' => '<i class="fa-solid fa-user-cog mr-3" aria-hidden="true"></i>',
+        'visible_to' => ['admintl']
+    ],
+    [
+        'label' => 'Riwayat Invoice',
+        'href' => 'riwayat_invoice.php',
+        'icon' => '<i class="fa-solid fa-history mr-3" aria-hidden="true"></i>',
+        'visible_to' => ['admin']
     ],
 ];
 
 foreach ($menuItems as $idx => $item) {
+    // Check if menu item is visible to current user role
+    $visibleTo = $item['visible_to'] ?? ['admin', 'admintl'];
+    if (!in_array($userRole, $visibleTo)) {
+        continue;
+    }
+
     // determine active state: explicit active flag or match current script name to href
     $current = basename($_SERVER['SCRIPT_NAME']);
     $isActive = !empty($item['active']) || (isset($item['href']) && basename($item['href']) === $current);

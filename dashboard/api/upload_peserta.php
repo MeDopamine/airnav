@@ -180,14 +180,14 @@ try {
         // Validasi minimal NIK dan Periode
         if (empty($dbData['nik']) || empty($dbData['periode'])) continue;
         // Cek duplikasi berdasarkan NIK dan Periode
-        $cekStmt = $conn->prepare("SELECT COUNT(*) FROM data_peserta WHERE nik = ? AND periode = ?");
-        if ($cekStmt === false) continue;
-        $cekStmt->bind_param('ss', $dbData['nik'], $dbData['periode']);
-        $cekStmt->execute();
-        $cekStmt->bind_result($count);
-        $cekStmt->fetch();
-        $cekStmt->close();
-    if ($count > 0) continue; // skip jika sudah ada
+    //     $cekStmt = $conn->prepare("SELECT COUNT(*) FROM data_peserta WHERE nik = ? AND periode = ?");
+    //     if ($cekStmt === false) continue;
+    //     $cekStmt->bind_param('ss', $dbData['nik'], $dbData['periode']);
+    //     $cekStmt->execute();
+    //     $cekStmt->bind_result($count);
+    //     $cekStmt->fetch();
+    //     $cekStmt->close();
+    // if ($count > 0) continue; // skip jika sudah ada
 
         // Ensure status_data is explicitly set so imported rows are pending approval (0)
         // Insert with additional premi fields: jenis_premi, jml_premi_krywn, jml_premi_pt

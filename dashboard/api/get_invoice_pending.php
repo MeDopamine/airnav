@@ -16,8 +16,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Hanya admin yang boleh akses
-if (!is_admin()) {
+// Hanya admintl yang boleh akses
+if (!is_admintl()) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'msg' => 'Forbidden']);
     exit;
@@ -25,14 +25,13 @@ if (!is_admin()) {
 
 include_once __DIR__ . '/../../db/db.php';
 
-// Query invoice dengan status pending atau revisi
-// Status disimpan di kolom flag: null/0 = pending, 2 = revisi
+// Query semua invoice (pending, approved, rejected)
+// Status disimpan di kolom flag: null/0 = pending, 1 = approved, 2 = rejected
 // Kolom: periode, jenis_premi (INT), invoice_no, flag
 $sql = "SELECT id, periode, jenis_premi, invoice_no, flag FROM invoice_airnav 
-        WHERE (flag IS NULL OR flag = 0 OR flag = 2)
-        AND deleted_at IS NULL
+        WHERE deleted_at IS NULL
         ORDER BY periode DESC, id DESC
-        LIMIT 100";
+        LIMIT 5";
 
 $result = mysqli_query($conn, $sql);
 if (!$result) {
