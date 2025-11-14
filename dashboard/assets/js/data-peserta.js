@@ -135,8 +135,8 @@ function loadPeriodeTable() {
               render: function (data, type, row) {
                 var approved = data == 1 ? 1 : 0;
                 var btnClass = approved
-                  ? "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"
-                  : "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
+                  ? "px-6 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"
+                  : "px-6 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
                 var btnLabel = approved ? "Approved" : "Not Approved";
                 return (
                   '<span class="' +
@@ -214,6 +214,9 @@ function buildMainTableFromData(dataArray) {
         ? formatPremi(row.jml_premi_pt)
         : "";
     var totalPremiFormatted = formatPremi(row.total_premi);
+    var status = 
+      typeof row.status !== "undefined"
+        ? row.status : "";
     var approved = row.status_data == 1 ? 1 : 0;
     var approveBtn = makeApproveBadge(approved, row.id);
     var actionBtns =
@@ -242,6 +245,9 @@ function buildMainTableFromData(dataArray) {
       totalPremiFormatted +
       "</td>" +
       '<td class="text-center">' +
+      status +
+      "</td>" +
+      '<td class="text-center">' +
       approveBtn +
       "</td>" +
       '<td class="text-center">' +
@@ -256,6 +262,7 @@ function buildMainTableFromData(dataArray) {
         jmlKry,
         jmlPt,
         totalPremiFormatted,
+        status_kry,
         approveBtn,
         actionBtns,
       ]);
@@ -331,7 +338,7 @@ $(document).on("click", ".btn-lihat-peserta", function () {
       html +=
         '<table id="modal-peserta-table" class="display stripe hover w-full" style="width:100%;font-size:13px;">';
       html +=
-        "<thead><tr><th>No</th><th>NIK</th><th>Periode</th><th>Jenis Premi</th><th>Jumlah Premi Karyawan</th><th>Jumlah Premi PT</th><th>Total Premi</th><th>PIC</th><th>Approval</th><th>Created At</th></tr></thead><tbody>";
+        "<thead><tr><th>No</th><th>NIK</th><th>Periode</th><th>Jenis Premi</th><th>Jumlah Premi Karyawan</th><th>Jumlah Premi PT</th><th>Total Premi</th><th>PIC</th><th>Status</th><th>Approval</th><th>Created At</th></tr></thead><tbody>";
 
       // 5. Gunakan dataForStatus.forEach
       dataForStatus.forEach(function (row, idx) {
@@ -403,6 +410,14 @@ $(document).on("click", ".btn-lihat-peserta", function () {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
+        var status = '';
+          switch (row.status) {
+          case "1":
+            status = "Aktif";
+            break;
+          default:
+            status = String(row.status || "");
+        }
         var approved = row.status_data == 1 ? 1 : 0;
         var badgeClass = approved
           ? "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"
@@ -422,6 +437,7 @@ $(document).on("click", ".btn-lihat-peserta", function () {
         html += '<td class="text-center">' + jmlPt + "</td>";
         html += '<td class="text-center">' + totalPremiFormatted + "</td>";
         html += '<td class="text-center">' + row.pic + "</td>";
+        html += '<td class="text-center">' + status + "</td>";
         html += '<td class="text-center">' + approveBtn + "</td>";
         html += '<td class="text-center">' + row.created_at + "</td>";
         html += "</tr>";
