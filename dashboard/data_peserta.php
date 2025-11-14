@@ -20,6 +20,7 @@ function formatJenisPremiDisplay($jenisValue) {
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,6 +45,7 @@ function formatJenisPremiDisplay($jenisValue) {
     <!-- SweetAlert2 custom styles -->
     <link rel="stylesheet" href="assets/css/swal-custom.css">
 </head>
+
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
         <?php render_partial('sidebar'); ?>
@@ -82,29 +84,32 @@ function formatJenisPremiDisplay($jenisValue) {
                         <!-- Overlay loading untuk area tabel saja -->
                         <div id="table-loading-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(255,255,255,0.7);z-index:20;align-items:center;justify-content:center;">
                             <div class="flex flex-col items-center justify-center h-full">
-                                <svg class="animate-spin h-10 w-10 text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                                <svg class="animate-spin h-10 w-10 text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                </svg>
                                 <span class="text-blue-700 font-semibold">Memuat data...</span>
                             </div>
                         </div>
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                             <div class="flex items-center space-x-3 mb-3 md:mb-0">
                                 <label for="periode" class="text-sm mr-3 font-medium text-gray-700">Periode:</label>
-                                    <select id="periode" name="periode" class="form-select px-3 py-1 border-2 rounded-full bg-white text-sm" style="width: 160px;">
-                                        <?php
-                                        // populate periode options from distinct values in DB
-                                        $pRes = mysqli_query($conn, "SELECT DISTINCT periode FROM data_peserta ORDER BY periode DESC");
-                                        if ($pRes) {
-                                            echo '<option value=""> Semua Periode </option>';
-                                            while ($pRow = mysqli_fetch_assoc($pRes)) {
-                                                $val = htmlspecialchars($pRow['periode']);
-                                                echo "<option value=\"$val\">$val</option>";
-                                            }
-                                            mysqli_free_result($pRes);
-                                        } else {
-                                            echo '<option value="">Tidak ada periode</option>';
+                                <select id="periode" name="periode" class="form-select px-3 py-1 border-2 rounded-full bg-white text-sm" style="width: 160px;">
+                                    <?php
+                                    // populate periode options from distinct values in DB
+                                    $pRes = mysqli_query($conn, "SELECT DISTINCT periode FROM data_peserta ORDER BY periode DESC");
+                                    if ($pRes) {
+                                        echo '<option value=""> Semua Periode </option>';
+                                        while ($pRow = mysqli_fetch_assoc($pRes)) {
+                                            $val = htmlspecialchars($pRow['periode']);
+                                            echo "<option value=\"$val\">$val</option>";
                                         }
-                                        ?>
-                                    </select>
+                                        mysqli_free_result($pRes);
+                                    } else {
+                                        echo '<option value="">Tidak ada periode</option>';
+                                    }
+                                    ?>
+                                </select>
                                 </form>
                             </div>
                         </div>
@@ -128,6 +133,11 @@ function formatJenisPremiDisplay($jenisValue) {
                                 // Columns adjusted to match table header: Periode, Jenis Premi, Jumlah Premi Karyawan, Jumlah Premi PT, Total Premi, Status
                                 $sql = "SELECT id, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, status_data FROM data_peserta ORDER BY periode DESC, id DESC";
                                 $res = mysqli_query($conn, $sql);
+                                $jenis_premi_map = [
+                                    1 => 'JHT Regular',
+                                    2 => 'JHT Topup',
+                                    3 => 'PKP Regular',
+                                ];
                                 if ($res) {
                                     while ($row = mysqli_fetch_assoc($res)) {
                                         echo '<tr>';
@@ -136,7 +146,10 @@ function formatJenisPremiDisplay($jenisValue) {
                                         // Periode (disimpan sebagai YYYYMM) - tampilkan apa adanya; frontend JS will also provide friendly format where used
                                         echo '<td class="text-center">' . htmlspecialchars($row['periode']) . '</td>';
                                         // Jenis Premi
-                                        echo '<td class="text-center">' . htmlspecialchars(formatJenisPremiDisplay($row['jenis_premi'])) . '</td>';
+                                        $jenis_premi_value = $row['jenis_premi'];
+                                        $jenis_premi_display = $jenis_premi_map[$jenis_premi_value] ?? htmlspecialchars($jenis_premi_value);
+                                        echo '<td class="text-center">' . $jenis_premi_display . '</td>';
+                                        // echo '<td class="text-center">' . htmlspecialchars($row['jenis_premi']) . '</td>';
                                         // Jumlah Premi Karyawan
                                         $kry = is_numeric($row['jml_premi_krywn']) ? 'Rp ' . number_format((float)$row['jml_premi_krywn'], 2, ',', '.') : htmlspecialchars($row['jml_premi_krywn']);
                                         echo '<td class="text-center">' . $kry . '</td>';
@@ -205,4 +218,5 @@ function formatJenisPremiDisplay($jenisValue) {
     <script src="assets/js/helpers/peserta-helpers.js"></script>
     <script src="assets/js/data-peserta.js"></script>
 </body>
+
 </html>
