@@ -85,14 +85,15 @@ if ($mode === 'jenis_detail') {
 // Default mode: 'all' - return aggregates per periode-jenis combination
 $sql = "SELECT periode,
                IFNULL(jenis_premi,'') AS jenis_premi,
+               IFNULL(status_data, 0) AS status_data,
                COALESCE(SUM(CAST(REPLACE(REPLACE(CAST(jml_premi_krywn AS CHAR), '.', ''), ',', '.') AS DECIMAL(15,2))),0) AS sum_krywn,
                COALESCE(SUM(CAST(REPLACE(REPLACE(CAST(jml_premi_pt AS CHAR), '.', ''), ',', '.') AS DECIMAL(15,2))),0) AS sum_pt,
                COALESCE(SUM(CAST(REPLACE(REPLACE(CAST(total_premi AS CHAR), '.', ''), ',', '.') AS DECIMAL(15,2))),0) AS sum_total,
                COUNT(*) AS jumlah_peserta,
                MAX(created_at) AS created_at
         FROM data_peserta
-        GROUP BY periode, jenis_premi
-        ORDER BY periode DESC, jenis_premi ASC";
+        GROUP BY periode, jenis_premi, status_data
+        ORDER BY periode DESC, jenis_premi ASC, status_data ASC";
 
 $res = mysqli_query($conn, $sql);
 $out = [];
@@ -101,6 +102,7 @@ if ($res) {
         $out[] = [
             'periode' => $r['periode'],
             'jenis' => $r['jenis_premi'],
+            'status_data' => (int)$r['status_data'],
             'sum_krywn' => 0 + $r['sum_krywn'],
             'sum_pt' => 0 + $r['sum_pt'],
             'sum_total' => 0 + $r['sum_total'],
@@ -111,4 +113,3 @@ if ($res) {
     mysqli_free_result($res);
 }
 echo json_encode(['ok' => true, 'data' => $out]);
-?>
