@@ -9,7 +9,8 @@ include '../db/db.php';
 include_once __DIR__ . '/partials/_init.php';
 
 // Helper function to format jenis premi display
-function formatJenisPremiDisplay($jenisValue) {
+function formatJenisPremiDisplay($jenisValue)
+{
     $jenisMap = array(
         '1' => 'JHT Regular',
         '2' => 'PKP Regular',
@@ -63,23 +64,23 @@ function formatJenisPremiDisplay($jenisValue) {
                     <div class="p-6 overflow-x-auto" style="position:relative;">
                         <!-- Tabel Periode -->
                         <div class="mb-4">
-                                    <table id="periode-table" class="w-full display stripe hover bg-white" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-center align-middle">No</th>
-                                                <th class="text-center align-middle">Periode</th>
-                                                <th class="text-center align-middle">Jenis Invoice</th>
-                                                <th class="text-center align-middle">Jumlah Peserta</th>
-                                                <th class="text-center align-middle">Total Premi Karyawan</th>
-                                                <th class="text-center align-middle">Total Premi PT</th>
-                                                <th class="text-center align-middle">Total Premi</th>
-                                                <th class="text-center align-middle">Tanggal Upload</th>
-                                                <th class="text-center align-middle">Status Approval</th>
-                                                <th class="text-center align-middle">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
+                            <table id="periode-table" class="w-full display stripe hover bg-white" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center align-middle">No</th>
+                                        <th class="text-center align-middle">Periode</th>
+                                        <th class="text-center align-middle">Jenis Invoice</th>
+                                        <th class="text-center align-middle">Jumlah Peserta</th>
+                                        <th class="text-center align-middle">Total Premi Karyawan</th>
+                                        <th class="text-center align-middle">Total Premi PT</th>
+                                        <th class="text-center align-middle">Total Premi</th>
+                                        <th class="text-center align-middle">Tanggal Upload</th>
+                                        <th class="text-center align-middle">Status Approval</th>
+                                        <th class="text-center align-middle">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                         <!-- Overlay loading untuk area tabel saja -->
                         <div id="table-loading-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(255,255,255,0.7);z-index:20;align-items:center;justify-content:center;">
