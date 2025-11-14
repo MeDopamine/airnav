@@ -32,7 +32,7 @@ $user = current_user();
 $user_id = $user['id'] ?? 0;
 
 // Check if invoice exists
-$check_sql = "SELECT id, flag FROM invoice_airnav WHERE id = $invoice_id";
+$check_sql = "SELECT * FROM invoice_airnav WHERE id = $invoice_id";
 $check_result = mysqli_query($conn, $check_sql);
 
 if (!$check_result || mysqli_num_rows($check_result) === 0) {
@@ -51,22 +51,48 @@ if ((int)$invoice['flag'] !== 0) {
     exit;
 }
 
-// Determine new flag value
-if ($action === 'approve') {
-    $new_flag = 1; // Approved
-} else {
-    $new_flag = 2; // Rejected
+$new_flag = ($action === 'approve') ? 1 : 2;
+
+// === JIKA REJECT: update data_peserta ===
+if ($action === 'reject') {
+    $sql_peserta = "
+        UPDATE data_peserta 
+        SET status_data = $new_flag 
+        WHERE periode = '{$invoice['periode']}' 
+          AND jenis_premi = '{$invoice['jenis_premi']}'
+    ";
+
+    if (!mysqli_query($conn, $sql_peserta)) {
+        http_response_code(500);
+        echo json_encode([
+            'ok' => false,
+            'msg' => 'Gagal mengupdate data peserta: ' . mysqli_error($conn)
+        ]);
+        exit;
+    }
 }
 
-// Update invoice
-$update_sql = "UPDATE invoice_airnav SET flag = $new_flag WHERE id = $invoice_id";
+// === UPDATE ALWAYS: invoice_airnav ===
+$sql_invoice = "UPDATE invoice_airnav SET flag = $new_flag WHERE id = $invoice_id";
 
-if (mysqli_query($conn, $update_sql)) {
-    echo json_encode(['ok' => true, 'msg' => $action === 'approve' ? 'Invoice berhasil di-approve' : 'Invoice berhasil di-reject']);
-} else {
+if (!mysqli_query($conn, $sql_invoice)) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'msg' => 'Gagal mengupdate invoice: ' . mysqli_error($conn)]);
+    echo json_encode([
+        'ok' => false,
+        'msg' => 'Gagal mengupdate invoice: ' . mysqli_error($conn)
+    ]);
+    exit;
 }
 
+// Jika semua berhasil
+echo json_encode([
+    'ok' => true,
+    'msg' => ($action === 'approve') 
+        ? 'Invoice berhasil di-approve' 
+        : 'Invoice berhasil di-reject'
+]);
+exit;
+
+// Update status data_peserta if invoice is approved
 mysqli_close($conn);
 ?>
