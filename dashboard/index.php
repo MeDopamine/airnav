@@ -5,8 +5,8 @@ include_once __DIR__ . '/partials/_init.php';
 // require login
 include_once __DIR__ . '/../auth.php';
 require_login();
-// only allow admin to access main dashboard; regular users go to their profile
-if (!is_admin()) {
+// only allow admin and admintl to access main dashboard; regular users go to their profile
+if (!is_admin_or_admintl()) {
     header('Location: user/dashboard.php');
     exit;
 }
@@ -44,6 +44,7 @@ if (!is_admin()) {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                     
                     <!-- Kartu Upload Data Peserta -->
+                    <?php if (!is_admintl()): ?>
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                         <div class="p-6">
                             <h2 class="text-xl font-semibold text-gray-800">Upload Data Peserta</h2>
@@ -76,8 +77,10 @@ if (!is_admin()) {
                             </button>
                         </div>
                     </div>
+                    <?php endif; ?>
 
                     <!-- Kartu Upload Invoice -->
+                    <?php if (is_admintl()): ?>
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                         <div class="p-6">
                             <h2 class="text-xl font-semibold text-gray-800">Upload Invoice</h2>
@@ -107,14 +110,16 @@ if (!is_admin()) {
                                 </table>
                                 <div id="invoice-pending-empty" class="text-center py-8 text-gray-500">
                                     <i class="fa-solid fa-inbox text-3xl mb-2 opacity-50"></i>
-                                    <p class="text-sm">Tidak ada invoice pending atau revisi</p>
+                                    <p class="text-sm">Tidak ada invoice</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Tabel Riwayat Upload -->
+                <?php if (!is_admintl()): ?>
                 <div class="mt-8 bg-white rounded-xl shadow-lg overflow-hidden">
                     <div class="p-6 border-b border-gray-200 flex items-center justify-between">
                         <h2 class="text-xl font-semibold text-gray-800">Riwayat Upload Terkini</h2>
@@ -323,6 +328,7 @@ if (!is_admin()) {
                         </table>
                     </div>
                 </div>
+                <?php endif; ?>
             </main>
         </div>
     </div>
@@ -364,8 +370,10 @@ if (!is_admin()) {
                         data.data.forEach(row => {
                             let statusBadge = '';
                             let statusValue = parseInt(row.status) || 0;  // Convert to int, default 0 jika null
-                            if (statusValue === 2) {
-                                statusBadge = '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Revision</span>';
+                            if (statusValue === 1) {
+                                statusBadge = '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>';
+                            } else if (statusValue === 2) {
+                                statusBadge = '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>';
                             } else {
                                 statusBadge = '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>';
                             }

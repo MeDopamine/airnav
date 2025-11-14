@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_login();
-if (!is_admin()) {
+if (!is_admin_or_admintl()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'data' => [], 'msg' => 'Akses ditolak']);
@@ -90,7 +90,10 @@ $sql = "SELECT periode,
                COALESCE(SUM(CAST(REPLACE(REPLACE(CAST(jml_premi_pt AS CHAR), '.', ''), ',', '.') AS DECIMAL(15,2))),0) AS sum_pt,
                COALESCE(SUM(CAST(REPLACE(REPLACE(CAST(total_premi AS CHAR), '.', ''), ',', '.') AS DECIMAL(15,2))),0) AS sum_total,
                COUNT(*) AS jumlah_peserta,
-               MAX(created_at) AS created_at
+               MAX(created_at) AS created_at,
+               CASE WHEN COUNT(CASE WHEN status_data = 1 THEN 1 END) = COUNT(*) THEN 1
+                    WHEN COUNT(CASE WHEN status_data = 1 THEN 1 END) > 0 THEN 2
+                    ELSE 0 END AS approval_status
         FROM data_peserta
         GROUP BY periode, jenis_premi, status_data
         ORDER BY periode DESC, jenis_premi ASC, status_data ASC";
@@ -107,7 +110,8 @@ if ($res) {
             'sum_pt' => 0 + $r['sum_pt'],
             'sum_total' => 0 + $r['sum_total'],
             'jumlah_peserta' => (int)$r['jumlah_peserta'],
-            'created_at' => $r['created_at']
+            'created_at' => $r['created_at'],
+            'approval_status' => (int)$r['approval_status']
         ];
     }
     mysqli_free_result($res);

@@ -1,11 +1,8 @@
 <?php
-// Require authentication and admin role before sending any output
+// Require authentication - admin dan admintl bisa akses
 include_once __DIR__ . '/../auth.php';
 require_login();
-if (!is_admin()) {
-    header('Location: user/dashboard.php');
-    exit;
-}
+require_admin_or_admintl();
 
 include '../db/db.php';
 // load partials helper for render_partial()
@@ -111,7 +108,7 @@ include_once __DIR__ . '/partials/_init.php';
                                     <tr>
                                         <th class="text-center align-middle">No</th>
                                         <th class="text-center align-middle">Periode</th>
-                                        <th class="text-center align-middle">Jenis Premi</th>
+                                        <th class="text-center align-middle">Jenis Invoice</th>
                                         <th class="text-center align-middle">No. Invoice</th>
                                         <th class="text-center align-middle">Tanggal Invoice</th>
                                         <th class="text-center align-middle">Jumlah Premi Karyawan</th>

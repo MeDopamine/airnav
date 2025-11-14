@@ -29,8 +29,25 @@ function is_admin() {
     return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 }
 
+function is_admintl() {
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admintl';
+}
+
+function is_admin_or_admintl() {
+    $role = $_SESSION['user_role'] ?? null;
+    return $role === 'admin' || $role === 'admintl';
+}
+
 function require_admin() {
     if (!is_admin()) {
+        http_response_code(403);
+        echo 'Terbatas: akses admin diperlukan.';
+        exit;
+    }
+}
+
+function require_admin_or_admintl() {
+    if (!is_admin_or_admintl()) {
         http_response_code(403);
         echo 'Terbatas: akses admin diperlukan.';
         exit;

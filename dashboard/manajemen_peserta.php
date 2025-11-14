@@ -1,11 +1,8 @@
 <?php
-// Require authentication and admin role before sending any output
+// Require authentication - admin dan admintl bisa akses
 include_once __DIR__ . '/../auth.php';
 require_login();
-if (!is_admin()) {
-    header('Location: user/dashboard.php');
-    exit;
-}
+require_admin_or_admintl();
 
 include '../db/db.php';
 // load partials helper for render_partial()
