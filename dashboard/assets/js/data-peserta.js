@@ -133,16 +133,30 @@ function loadPeriodeTable() {
               data: "status_data",
               className: "text-center",
               render: function (data, type, row) {
-                var approved = data == 1 ? 1 : 0;
-                var btnClass = approved
-                  ? "px-6 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"
-                  : "px-6 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
-                var btnLabel = approved ? "Approved" : "Not Approved";
+                var status_data = "";
+                var btnClass = "";
+                switch (data) {
+                  case 0:
+                    status_data = "Not Approved";
+                    btnClass =
+                      "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
+                    break;
+                  case 1:
+                    status_data = "Approved";
+                    btnClass =
+                      "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800";
+                    break;
+                  case 2:
+                    status_data = "rejected";
+                    btnClass =
+                      "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800";
+                    break;
+                }
                 return (
                   '<span class="' +
                   btnClass +
                   '" style="min-width:110px;">' +
-                  btnLabel +
+                  status_data +
                   "</span>"
                 );
               },
@@ -416,13 +430,30 @@ $(document).on("click", ".btn-lihat-peserta", function () {
           default:
             status = String(row.status || "");
         }
-        var approved = row.status_data == 1 ? 1 : 0;
-        var badgeClass = approved
-          ? "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"
-          : "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
-        var badgeLabel = approved ? "Approved" : "Not Approved";
-        var approveBtn =
-          '<span class="' + badgeClass + '">' + badgeLabel + "</span>";
+        var approveBtn = "";
+        switch (row.status_data) {
+          case "0":
+            approveBtn =
+              '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800"> Not Approved </span>';
+            break;
+          case "1":
+            approveBtn =
+              '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"> Approved </span>';
+            break;
+          case "2":
+            approveBtn =
+              '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800"> Rejected </span>';
+            break;
+        }
+        // var approved = row.status_data == 1 ? 1 : 0;
+        // var badgeClass = approved
+        //   ? "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"
+        //   : "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
+        // var badgeLabel = approved ? "Approved" : "Not Approved";
+        // var approveBtn =
+        //   '<span class="' + btnClass + '">' + status_data + "</span>";
+        // var approveBtn =
+        //   '<span class="' + btnClass + '">' + status_data + "</span>";
         html += "<tr>";
         html += '<td class="text-center">' + (idx + 1) + "</td>";
         html += '<td class="text-center">' + row.nik + "</td>";
