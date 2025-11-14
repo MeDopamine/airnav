@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_login();
-// only admin may change approval status
-if (!is_admin()) {
+// both admintl and admin can change approval status
+if (!is_admin_or_admintl()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'msg' => 'Akses ditolak']);

@@ -1,4 +1,14 @@
-// Tabel Periode + Jenis Premi (combined aggregates)
+// Helper function to format Jenis Premi display
+        function formatJenisPremi(jenisValue) {
+            var jenisMap = {
+                '1': 'JHT Regular',
+                '2': 'PKP Regular',
+                '3': 'JHT Topup'
+            };
+            return jenisMap[String(jenisValue)] || String(jenisValue);
+        }
+
+        // Tabel Periode + Jenis Premi (combined aggregates)
         var periodeTable = null;
         function loadPeriodeTable() {
             $.get('api/get_periode_jenis.php', function(resp) {
@@ -23,7 +33,8 @@
                                 { targets: 5, width: '140px', className: 'text-center' }, // Total Premi PT
                                 { targets: 6, width: '140px', className: 'text-center' }, // Total Premi
                                 { targets: 7, width: '140px', className: 'text-center' }, // Tanggal Upload
-                                { targets: 8, width: '120px', className: 'text-center' }  // Aksi
+                                { targets: 8, width: '140px', className: 'text-center' }, // Status Approval
+                                { targets: 9, width: '120px', className: 'text-center' }  // Aksi
                             ],
                             columns: [
                                 { data: null, className: 'text-center', render: function(data, type, row, meta) { return meta.row + 1; } },
@@ -31,7 +42,7 @@
                                     try { return formatPeriodeReadable(data); } catch (e) { return String(data); }
                                 } },
                                 { data: 'jenis', className: 'text-center', render: function(data, type, row) {
-                                    return String(data || '');
+                                    return formatJenisPremi(data);
                                 } },
                                 { data: 'jumlah_peserta', className: 'text-center', render: function(data, type, row) {
                                     return String(data || '0');
@@ -52,6 +63,16 @@
                                         return d.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' });
                                     } catch (e) { return String(data); }
                                 } },
+                                { data: 'approval_status', className: 'text-center', render: function(data, type, row) {
+                                    var status = parseInt(data) || 0;
+                                    if (status === 1) {
+                                        return '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>';
+                                    } else if (status === 2) {
+                                        return '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800">Partial Approved</span>';
+                                    } else {
+                                        return '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800">Not Approved</span>';
+                                    }
+                                } },
                                 { data: null, className: 'text-center', render: function(data, type, row) {
                                     return `<div style='display:flex;justify-content:center;align-items:center;height:100%;'><button class="btn-lihat-peserta bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-1.5 rounded-full flex items-center justify-center transition" style="min-width:100px;gap:6px;" data-periode="${row.periode}" data-jenis="${row.jenis}"><i class='fa-solid fa-eye' style='font-size:15px;vertical-align:middle;'></i><span style='margin-left:4px;'>Lihat</span></button></div>`;
                                 }}
@@ -66,7 +87,8 @@
                             sum_krywn: r.sum_krywn,
                             sum_pt: r.sum_pt,
                             sum_total: r.sum_total,
-                            created_at: r.created_at
+                            created_at: r.created_at,
+                            approval_status: r.approval_status
                         };
                     });
                     periodeTable.clear().rows.add(rows).draw();
@@ -101,14 +123,21 @@
                     dataArray.forEach(function(row) {
                         // Expected fields from API: id, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, status_data
                         var displayPeriode = formatPeriodeDisplay(row.periode);
-                        var jenisPremi = typeof row.jenis_premi !== 'undefined' ? String(row.jenis_premi) : '';
+                        var jenisPremi = typeof row.jenis_premi !== 'undefined' ? formatJenisPremi(row.jenis_premi) : '';
                         var jmlKry = typeof row.jml_premi_krywn !== 'undefined' ? formatPremi(row.jml_premi_krywn) : '';
                         var jmlPt = typeof row.jml_premi_pt !== 'undefined' ? formatPremi(row.jml_premi_pt) : '';
                         var totalPremiFormatted = formatPremi(row.total_premi);
                         var approved = (row.status_data == 1) ? 1 : 0;
                         var approveBtn = makeApproveBadge(approved, row.id);
-                        var actionBtns = '<button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:4px;" title="Edit" data-id="' + row.id + '"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                        // Only show edit/delete buttons if user is admin
+                        var actionBtns = '';
+                        if (typeof userRole !== 'undefined' && userRole === 'admin') {
+                            actionBtns = '<button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:4px;" title="Edit" data-id="' + row.id + '"><i class="fa-solid fa-pen-to-square"></i></button>' +
                                          '<button class="btn-delete-data transition" style="margin-left:4px;" title="Hapus" data-id="' + row.id + '"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>';
+                        } else {
+                            // Show locked icon for non-admin users
+                            actionBtns = '<div class="text-gray-400"><i class="fa-solid fa-lock" title="Hanya Admin yang bisa edit/hapus"></i></div>';
+                        }
                         var rowHtml = '<tr>' +
                             '<td class="text-center"></td>' +
                             '<td class="text-center">' + displayPeriode + '</td>' +
@@ -171,7 +200,7 @@
                     html += '<th>No</th>';
                     html += '<th>NIK</th>';
                     html += '<th>Periode</th>';
-                    html += '<th>Jenis Premi</th>';
+                    html += '<th>Jenis Invoice</th>';
                     html += '<th>Jumlah Premi Karyawan</th>';
                     html += '<th>Jumlah Premi PT</th>';
                     html += '<th>Total Premi</th>';
@@ -198,7 +227,7 @@
                             var n = parseFloat(s);
                             return isNaN(n) ? 0 : n;
                         }
-                        var jenisPremi = typeof row.jenis_premi !== 'undefined' ? String(row.jenis_premi) : '';
+                        var jenisPremi = typeof row.jenis_premi !== 'undefined' ? formatJenisPremi(row.jenis_premi) : '';
                         var rawKry = typeof row.jml_premi_krywn !== 'undefined' ? row.jml_premi_krywn : (typeof row.total_premi !== 'undefined' ? row.total_premi : 0);
                         var numKry = parseAmount(rawKry);
                         var jmlKry = 'Rp ' + numKry.toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -258,7 +287,7 @@
                                     pageLength: 10,
                                     ordering: true,
                                     dom: 'Bfrtip',
-                                    buttons: [
+                                    buttons: (typeof userRole !== 'undefined' && userRole === 'admintl') ? [
                                         {
                                             text: '<i class="fa-solid fa-check-double mr-2"></i>Approve All',
                                             className: 'approve-all-btn bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full px-4 py-2 transition flex items-center',
@@ -278,46 +307,112 @@
                                                         // include jenis if present so approval is scoped by periode + jenis_premi
                                                         var postData = { approve_all: 1, periode: periode };
                                                         if (typeof jenis !== 'undefined' && jenis !== null && String(jenis) !== '') postData.jenis = jenis;
-                                                        $.post('api/update_status_peserta.php', postData, function(resp) {
-                                                            if (resp && resp.ok) {
-                                                                Swal.close();
-                                                                // Refresh tabel utama peserta (AJAX) using centralized helper
-                                                                if ($('#data-peserta-table').length && $.fn.DataTable.isDataTable('#data-peserta-table')) {
-                                                                    showTableLoading && showTableLoading();
-                                                                    $.get('api/get_peserta.php', function(resp2) {
-                                                                        if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
-                                                                            buildMainTableFromData(resp2.data);
-                                                                        }
-                                                                    }).always(function() {
-                                                                        hideTableLoading && hideTableLoading();
-                                                                    });
-                                                                }
-                                                                if (typeof Toast !== 'undefined') {
-                                                                    Toast.fire({ icon: 'success', title: 'Semua peserta periode ini sudah di-approve' });
+                                                        $.ajax({
+                                                            url: 'api/update_status_peserta.php',
+                                                            type: 'POST',
+                                                            data: postData,
+                                                            dataType: 'json',
+                                                            success: function(resp) {
+                                                                if (resp && resp.ok) {
+                                                                    Swal.close();
+                                                                    // Refresh tabel utama peserta (AJAX) using centralized helper
+                                                                    if ($('#data-peserta-table').length && $.fn.DataTable.isDataTable('#data-peserta-table')) {
+                                                                        showTableLoading && showTableLoading();
+                                                                        $.get('api/get_peserta.php', function(resp2) {
+                                                                            if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
+                                                                                buildMainTableFromData(resp2.data);
+                                                                            }
+                                                                        }).always(function() {
+                                                                            hideTableLoading && hideTableLoading();
+                                                                        });
+                                                                    }
+                                                                    // Refresh periode table to update approval status
+                                                                    if (typeof loadPeriodeTable === 'function') {
+                                                                        loadPeriodeTable();
+                                                                    }
+                                                                    if (typeof Toast !== 'undefined') {
+                                                                        Toast.fire({ icon: 'success', title: 'Semua peserta periode ini sudah di-approve' });
+                                                                    } else {
+                                                                        Swal.fire({ icon: 'success', title: 'Semua peserta periode ini sudah di-approve', timer: 2000, showConfirmButton: false });
+                                                                    }
+                                                                    // disable Approve All button now that all are approved (if DataTable/button still present)
+                                                                    try {
+                                                                        dt.button(0).enable(false);
+                                                                        btn.addClass('opacity-50 cursor-not-allowed').prop('disabled', true);
+                                                                    } catch (e) {
+                                                                        // ignore if dt/button not available
+                                                                    }
                                                                 } else {
-                                                                    Swal.fire({ icon: 'success', title: 'Semua peserta periode ini sudah di-approve', timer: 2000, showConfirmButton: false });
+                                                                    // reset button and show error
+                                                                    resetApproveAllButton(btn);
+                                                                    showErrorNotification('Gagal approve semua peserta');
                                                                 }
-                                                                // disable Approve All button now that all are approved (if DataTable/button still present)
-                                                                try {
-                                                                    dt.button(0).enable(false);
-                                                                    btn.addClass('opacity-50 cursor-not-allowed').prop('disabled', true);
-                                                                } catch (e) {
-                                                                    // ignore if dt/button not available
-                                                                }
-                                                            } else {
-                                                                // reset button and show error
+                                                            },
+                                                            error: function() {
+                                                                // reset button and show error on network failure
                                                                 resetApproveAllButton(btn);
                                                                 showErrorNotification('Gagal approve semua peserta');
                                                             }
-                                                        }).fail(function() {
-                                                            // reset button and show error on network failure
-                                                            resetApproveAllButton(btn);
-                                                            showErrorNotification('Gagal approve semua peserta');
                                                         });
                                                     }
                                                 });
                                             }
                                         },
+                                        {
+                                            extend: 'excel',
+                                            text: '<i class="fa-solid fa-file-excel mr-2" style="font-size:18px;"></i><span class="font-semibold">Excel</span>',
+                                            className: 'mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center',
+                                            exportOptions: {
+                                                columns: [0,1,2,3,4,5],
+                                                format: {
+                                                    body: function (data, row, column, node) {
+                                                        if (column === 3) {
+                                                            var num = String(data).replace(/[^\d,\.]/g, '').replace(/\.(?=\d{3,})/g, '').replace(',', '.');
+                                                            return num;
+                                                        }
+                                                        if (column === 5) {
+                                                            var match = String(data).match(/>(Approved|Not Approved)</);
+                                                            return match ? match[1] : data;
+                                                        }
+                                                        return data;
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            extend: 'pdf',
+                                            text: '<i class="fa-solid fa-file-pdf mr-2" style="font-size:18px;"></i><span class="font-semibold">PDF</span>',
+                                            className: 'mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center',
+                                            exportOptions: { columns: [0,1,2,3,4,5] },
+                                            orientation: 'portrait',
+                                            pageSize: 'A4',
+                                            customize: function(doc) {
+                                                doc.defaultStyle.fontSize = 10;
+                                                doc.pageMargins = [30, 20, 30, 20];
+                                                doc.content[1].table.widths = [
+                                                    20,    // No
+                                                    80,    // NIK
+                                                    50,    // Periode
+                                                    75,    // Total Premi
+                                                    60,    // PIC
+                                                    65,    // Approval
+                                                ];
+                                                var body = doc.content[1].table.body;
+                                                for (var i = 0; i < body.length; i++) {
+                                                    for (var j = 0; j < body[i].length; j++) {
+                                                        body[i][j].alignment = 'center';
+                                                        body[i][j].margin = [0, 4, 0, 4];
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            extend: 'print',
+                                            text: '<i class="fa-solid fa-print mr-2" style="font-size:18px;"></i><span class="font-semibold">Print</span>',
+                                            className: 'mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center',
+                                            exportOptions: { columns: [0,1,2,3,4,5] }
+                                        }
+                                    ] : [
                                         {
                                             extend: 'excel',
                                             text: '<i class="fa-solid fa-file-excel mr-2" style="font-size:18px;"></i><span class="font-semibold">Excel</span>',
@@ -379,20 +474,22 @@
                                         { targets: '_all', className: 'text-center' }
                                     ]
                                 });
-                                        // After DataTable initialized, set Approve All initial enabled/disabled state
-                                        try {
-                                            // Button index 0 is the Approve All button we added above
-                                            if (allApproved) {
-                                                dt.button(0).enable(false);
-                                                // visually indicate disabled
-                                                $('#modal-peserta-table').closest('.swal2-html-container').find('.approve-all-btn').addClass('opacity-50 cursor-not-allowed').prop('disabled', true);
-                                            } else {
-                                                dt.button(0).enable(true);
-                                                $('#modal-peserta-table').closest('.swal2-html-container').find('.approve-all-btn').removeClass('opacity-50 cursor-not-allowed').prop('disabled', false);
+                                        // After DataTable initialized, set Approve All initial enabled/disabled state (only for AdminTL)
+                                        if (typeof userRole !== 'undefined' && userRole === 'admintl') {
+                                            try {
+                                                // Button index 0 is the Approve All button we added above
+                                                if (allApproved) {
+                                                    dt.button(0).enable(false);
+                                                    // visually indicate disabled
+                                                    $('#modal-peserta-table').closest('.swal2-html-container').find('.approve-all-btn').addClass('opacity-50 cursor-not-allowed').prop('disabled', true);
+                                                } else {
+                                                    dt.button(0).enable(true);
+                                                    $('#modal-peserta-table').closest('.swal2-html-container').find('.approve-all-btn').removeClass('opacity-50 cursor-not-allowed').prop('disabled', false);
+                                                }
+                                            } catch (e) {
+                                                // ignore if button API not available
+                                                console.warn('Could not set Approve All button state', e);
                                             }
-                                        } catch (e) {
-                                            // ignore if button API not available
-                                            console.warn('Could not set Approve All button state', e);
                                         }
                                         // Style tombol approve all agar lebih menonjol
                                         setTimeout(function() {
@@ -764,8 +861,12 @@
                     if (result.isConfirmed) {
                         btn.prop('disabled', true).text('Diproses...');
 
-                        $.post('api/update_status_peserta.php', { id: id, status: newStatus })
-                            .done(function(resp) {
+                        $.ajax({
+                            url: 'api/update_status_peserta.php',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: { id: id, status: newStatus },
+                            success: function(resp) {
                                 if (resp && resp.ok) {
                                     // Otomatis refresh tabel AJAX agar data dan status langsung update
                                     showTableLoading();
@@ -780,13 +881,14 @@
                                 } else {
                                     Toast.fire({ icon: 'error', title: 'Gagal menyimpan status' });
                                 }
-                            })
-                            .fail(function(xhr) {
+                            },
+                            error: function(xhr) {
                                 Toast.fire({ icon: 'error', title: 'Terjadi kesalahan saat menyimpan' });
-                            })
-                            .always(function() {
+                            },
+                            complete: function() {
                                 btn.prop('disabled', false);
-                            });
+                            }
+                        });
                     }
                 });
             });

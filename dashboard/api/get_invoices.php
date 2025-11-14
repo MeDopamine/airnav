@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_login();
-if (!is_admin()) {
+if (!is_admin_or_admintl()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Akses ditolak']);
@@ -42,12 +42,12 @@ if ($res) {
         $display_j_pt = 'Rp ' . number_format($j_pt, 2, ',', '.');
         $display_total = 'Rp ' . number_format($total, 2, ',', '.');
 
-    // Map flag values to status: 0=Pending, 1=Verified, 2=Revision
+    // Map flag values to status: 0=Pending, 1=Approved, 2=Rejected
     $flag_val = isset($row['flag']) ? (int)$row['flag'] : 0;
     if ($flag_val === 1) {
-        $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800">Verified</span>';
+        $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>';
     } elseif ($flag_val === 2) {
-        $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-orange-100 text-orange-800">Revision</span>';
+        $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>';
     } else {
         $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>';
     }
@@ -77,9 +77,9 @@ if ($res) {
         // use stored jumlah (participant count) from invoice table if available
         $jumlah_peserta = isset($row['jumlah']) ? (int)$row['jumlah'] : 0;
 
-        // Edit button: only show for Pending (flag=0) and Revision (flag=2)
+        // Edit button: only show for Pending (flag=0)
         $edit_btn = '';
-        if ($flag_val === 0 || $flag_val === 2) {
+        if ($flag_val === 0) {
             $edit_btn = '<button class="btn-edit text-white bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-md inline-flex items-center justify-center gap-2" data-id="' . (int)$row['id'] . '" data-invoice="' . htmlspecialchars($no_invoice) . '"><i class="fa-solid fa-pencil"></i><span>Edit</span></button>';
         }
 
