@@ -1,0 +1,242 @@
+/* Centralized SweetAlert2 custom styles for consistent modal/buttons appearance */
+/* Keep specificity high and use !important sparingly to override default swal2 CSS when needed */
+
+/* Popup tweaks */
+.swal2-popup {
+    border-radius: 12px;
+    padding: 1.25rem !important;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.08);
+}
+.swal2-title {
+    margin-top: -1.25rem !important;
+}
+
+/* Center and space action buttons */
+.swal2-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem !important;
+}
+
+/* Icon alignment */
+.swal2-icon {
+    margin-top: 4px !important;
+}
+
+/* Button color variants used across the app (matches Tailwind palette used elsewhere) */
+.swal2-confirm,
+.swal-ok-btn,
+.swal-confirm-btn {
+    background-color: #2563eb !important; /* blue-600 */
+    color: #fff !important;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+.swal2-cancel,
+.swal-cancel-btn {
+    background-color: #6b7280 !important; /* gray-500 */
+    color: #fff !important;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+}
+
+/* Optional small helper classes for customClass usage */
+.swal-btn-primary { padding: 0.5rem 0.85rem; border-radius: 0.5rem; }
+.swal-btn-secondary { padding: 0.5rem 0.85rem; border-radius: 0.5rem; background:#6b7280; color:#fff }
+
+/* Make sure long modal content still allows visible footer in constrained heights */
+.swal2-popup .swal2-content {
+    max-height: 56vh;
+    overflow: auto;
+}
+
+/* Style native file inputs to present a rounded "Choose File" button and consistent appearance */
+input[type="file"] {
+    border-radius: 8px;
+    /* ensure input fills available width and leaves space on the left for the file button */
+    overflow: visible;
+    border: 1px solid #d1d5db; /* gray-300 */
+    border-radius: 10px;
+    background: #f8fafc; /* gray-50 */
+    padding: 0.25rem 0.5rem 0.25rem 1.25rem; /* larger left padding so button isn't flush to container */
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Modern browsers */
+input[type="file"]::file-selector-button {
+    background-color: #1f2937; /* gray-800 (dark) */
+    color: #fff;
+    padding: 0 1rem;
+    /* keep the button comfortably inset from the left edge */
+    margin: 0 0.5rem 0 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    font-weight: 600;
+}
+
+/* Webkit fallback */
+input[type="file"]::-webkit-file-upload-button {
+    background-color: #1f2937;
+    color: #fff;
+    padding: 0 1rem;
+    margin: 0 0.5rem 0 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    font-weight: 600;
+}
+
+/* IE/Edge older fallback */
+input[type="file"]::-ms-browse {
+    background-color: #1f2937;
+    color: #fff;
+    padding: 0 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    font-weight: 600;
+}
+
+/* Modal-scoped strong overrides to prevent external CSS from shifting or clipping the button */
+.swal2-popup input[type="file"] {
+    /* give more left breathing room so the native button doesn't sit flush */
+    padding-left: 0.15rem !important;
+}
+.swal2-popup input[type="file"]::file-selector-button {
+    padding: 0 1rem !important;
+    margin-left: 0.15rem !important; /* shift button slightly right from the left edge */
+    min-width: 140px !important;
+    box-sizing: border-box !important;
+}
+.swal2-popup input[type="file"]::-webkit-file-upload-button {
+    padding: 0 1rem !important;
+    margin-left: 0.15rem !important;
+    min-width: 140px !important;
+    box-sizing: border-box !important;
+}
+.swal2-popup input[type="file"]::-ms-browse {
+    padding: 0 1rem !important;
+    margin-left: 0.15rem !important;
+    min-width: 140px !important;
+    box-sizing: border-box !important;
+}
+
+/* Toast alignment fixes: ensure icon and text are vertically centered */
+.swal2-toast {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem;
+}
+
+/* .swal2-toast .swal2-icon {
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+    vertical-align: middle !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+} */
+
+.swal2-toast .swal2-title,
+.swal2-toast .swal2-content {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* Slightly reduce icon size in toasts so text and icon feel balanced */
+.swal2-toast .swal2-icon {
+    width: 30px !important;
+    height: 33px !important;
+}
+
+/* Ensure success check icon inside toast is centered */
+.swal2-toast .swal2-icon .swal2-success-ring,
+.swal2-toast .swal2-icon .swal2-success-line-tip,
+.swal2-toast .swal2-icon .swal2-success-line-long {
+    transform-origin: center center !important;
+}
+
+/* Select2 styling inside SweetAlert modal */
+.swal2-popup .select2-container--default .select2-selection--single {
+    border: 1px solid #d1d5db !important; /* gray-300 */
+    border-radius: 8px !important;
+    height: 42px !important;
+    background-color: #f9fafb !important; /* gray-50 */
+}
+
+.swal2-popup .select2-container--default.select2-container--focus .select2-selection--single,
+.swal2-popup .select2-container--default .select2-selection--single:hover {
+    border-color: #3b82f6 !important; /* blue-500 on hover */
+}
+
+.swal2-popup .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #374151 !important; /* gray-700 */
+    line-height: 40px !important;
+    padding-left: 12px !important;
+}
+
+.swal2-popup .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 40px !important;
+}
+
+/* Dropdown panel styling */
+.select2-dropdown.select2-dropdown--below {
+    border: 1px solid #e5e7eb !important; /* gray-200 */
+    border-radius: 8px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.select2-results__option {
+    padding: 10px 12px !important;
+    line-height: 1.5 !important;
+}
+
+.select2-results__option--highlighted,
+.select2-results__option--selected {
+    background-color: #3b82f6 !important; /* blue-500 */
+}
+
+.select2-results__option--highlighted[aria-selected="true"] {
+    background-color: #4b5563 !important; /* gray-600 */
+}
+.select2-selection__placeholder {
+    color: #4b5563 !important; /* gray-600 */
+    font-size: 14px !important;
+}
+.select2-selection__rendered {
+    font-size: 14px !important;
+}
+.select2-selection__clear {
+    margin-top: 6px !important;
+}
+
+/* Search box inside Select2 */
+.select2-search__field {
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+}
+

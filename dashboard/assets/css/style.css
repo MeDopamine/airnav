@@ -1,0 +1,63 @@
+/* Hover effect for approval buttons */
+.approve-btn.bg-green-100:hover, .approve-btn.bg-green-100:focus {
+    background-color: #bbf7d0 !important; /* Tailwind green-200 */
+    box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.10);
+    color: #166534 !important; /* Tailwind green-800 */
+    cursor: pointer;
+}
+.approve-btn.bg-red-100:hover, .approve-btn.bg-red-100:focus {
+    background-color: #fecaca !important; /* Tailwind red-200 */
+    box-shadow: 0 2px 8px 0 rgba(239, 68, 68, 0.10);
+    color: #991b1b !important; /* Tailwind red-800 */
+    cursor: pointer;
+}
+/* Custom DataTables Buttons agar mirip tombol Export Excel */
+.dt-button, .dt-button:active, .dt-button:focus {
+    border-radius: 9999px !important;
+    border: 1.5px solid #60a5fa !important; /* biru-300 */
+    background: #fff !important;
+    color: #1d4ed8 !important; /* biru-700 */
+    font-weight: 600 !important;
+    padding: 0.5rem 1.5rem !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    transition: background 0.2s, color 0.2s;
+}
+.dt-button:hover, .dt-button:active:hover {
+    background: #2563eb !important; /* biru-600 */
+    color: #fff !important;
+    border-color: #2563eb !important;
+}
+.dt-button .fa-solid {
+    font-size: 18px !important;
+    margin-right: 0.5rem !important;
+}
+/* Hover effect khusus tombol Tambah Data Peserta agar seperti permintaan user */
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #1d4ed8 !important; /* biru-700 Tailwind */
+    color: #fff !important;
+    border-color: #1d4ed8 !important;
+    cursor: pointer;
+}
+/* Hover effect khusus tombol Export Excel agar seperti permintaan user */
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: #2563eb !important; /* biru-600 Tailwind */
+    color: #fff !important;
+    border-color: #2563eb !important;
+    cursor: pointer;
+}
+/* Override DataTables header th agar align middle secara vertikal */
+table.dataTable thead th {
+    text-align: center;
+}
+body {
+    font-family: 'Inter', sans-serif;
+}
+#mobile-menu {
+    transition: transform 0.3s ease-in-out;
+}
+.drag-over {
+    background-color: #f0f4ff;
+    border-color: #3b82f6; /* blue-500 */
+}
