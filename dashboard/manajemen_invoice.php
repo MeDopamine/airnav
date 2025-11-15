@@ -10,6 +10,7 @@ include_once __DIR__ . '/partials/_init.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,89 +45,91 @@ include_once __DIR__ . '/partials/_init.php';
         .flatpickr-calendar {
             z-index: 2000 !important;
         }
+
         .flatpickr-calendar.open {
             display: block !important;
         }
     </style>
 </head>
+
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
-            <?php render_partial('sidebar'); ?>
-            <!-- Konten Utama -->
-            <div class="flex-1 flex flex-col overflow-hidden">
-                <!-- Header -->
-                <?php render_partial('header'); ?>
-                <!-- Area Konten Utama -->
-                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6 md:p-8">
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <div class="p-6 border-b border-gray-200">
-                            <h2 class="text-xl font-semibold text-gray-800">Data Invoice</h2>
-                            <p class="text-sm text-gray-500 mt-1">Daftar invoice hasil upload. Gunakan kolom pencarian untuk filter data.</p>
-                        </div>
-                        <div class="p-6 overflow-x-auto" style="position:relative;">
-                            <?php
-                            // Fetch distinct periode values for filter dropdown
-                            $periode_list = [];
-                            $q = "SELECT DISTINCT periode FROM invoice_airnav ORDER BY periode DESC";
-                            $r = mysqli_query($conn, $q);
-                            if ($r) {
-                                while ($rw = mysqli_fetch_assoc($r)) {
-                                    if (isset($rw['periode']) && $rw['periode'] !== '') $periode_list[] = $rw['periode'];
-                                }
-                                mysqli_free_result($r);
-                            }
-                            ?>
-
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                                <div class="flex items-center space-x-3 mb-3 md:mb-0">
-                                    <label for="filter-periode" class="text-sm font-medium text-gray-700">Periode:</label>
-                                    <select id="filter-periode" class="border rounded-lg px-2 py-1 text-sm">
-                                        <?php
-                                        // populate periode options from distinct periode values in invoice_airnav table
-                                        $pRes = mysqli_query($conn, "SELECT DISTINCT periode FROM invoice_airnav ORDER BY periode DESC");
-                                        if ($pRes) {
-                                            echo '<option value=""> Semua Periode </option>';
-                                            while ($pRow = mysqli_fetch_assoc($pRes)) {
-                                                $val = htmlspecialchars($pRow['periode']);
-                                                echo "<option value=\"$val\">$val</option>";
-                                            }
-                                            mysqli_free_result($pRes);
-                                        } else {
-                                            echo '<option value="">Tidak ada periode</option>';
-                                        }
-                                        ?>
-                                    </select>
-                                    <button id="add-peserta-btn" type="button" class    ="ml-3 btn btn-primary flex flex-row items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-150 focus:outline-none min-w-[80px] whitespace-nowrap text-base" style="min-width:80px; border-radius:10px;">
-                                        <i class="fa-solid fa-plus mr-3"></i>
-                                         <span class="text-right whitespace-nowrap">Invoice</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <table id="data-peserta-table" class="w-full display stripe hover" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center align-middle">No</th>
-                                        <th class="text-center align-middle">Periode</th>
-                                        <th class="text-center align-middle">Jenis Invoice</th>
-                                        <th class="text-center align-middle">No. Invoice</th>
-                                        <th class="text-center align-middle">Tanggal Invoice</th>
-                                        <th class="text-center align-middle">Jumlah Premi Karyawan</th>
-                                        <th class="text-center align-middle">Jumlah Peserta</th>
-                                        <th class="text-center align-middle">Total Premi</th>
-                                        <th class="text-center align-middle">PIC</th>
-                                        <th class="text-center align-middle">Status</th>
-                                        <th class="text-center align-middle">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Data loaded via AJAX -->
-                                </tbody>
-                            </table>
-                        </div>
+        <?php render_partial('sidebar'); ?>
+        <!-- Konten Utama -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <?php render_partial('header'); ?>
+            <!-- Area Konten Utama -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6 md:p-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800">Data Invoice</h2>
+                        <p class="text-sm text-gray-500 mt-1">Daftar invoice hasil upload. Gunakan kolom pencarian untuk filter data.</p>
                     </div>
-                </main>
-            </div>
+                    <div class="p-6 overflow-x-auto" style="position:relative;">
+                        <?php
+                        // Fetch distinct periode values for filter dropdown
+                        $periode_list = [];
+                        $q = "SELECT DISTINCT periode FROM invoice_airnav ORDER BY periode DESC";
+                        $r = mysqli_query($conn, $q);
+                        if ($r) {
+                            while ($rw = mysqli_fetch_assoc($r)) {
+                                if (isset($rw['periode']) && $rw['periode'] !== '') $periode_list[] = $rw['periode'];
+                            }
+                            mysqli_free_result($r);
+                        }
+                        ?>
+
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                            <div class="flex items-center space-x-3 mb-3 md:mb-0">
+                                <label for="filter-periode" class="text-sm font-medium text-gray-700">Periode:</label>
+                                <select id="filter-periode" class="border rounded-lg px-2 py-1 text-sm">
+                                    <?php
+                                    // populate periode options from distinct periode values in invoice_airnav table
+                                    $pRes = mysqli_query($conn, "SELECT DISTINCT periode FROM invoice_airnav ORDER BY periode DESC");
+                                    if ($pRes) {
+                                        echo '<option value=""> Semua Periode </option>';
+                                        while ($pRow = mysqli_fetch_assoc($pRes)) {
+                                            $val = htmlspecialchars($pRow['periode']);
+                                            echo "<option value=\"$val\">$val</option>";
+                                        }
+                                        mysqli_free_result($pRes);
+                                    } else {
+                                        echo '<option value="">Tidak ada periode</option>';
+                                    }
+                                    ?>
+                                </select>
+                                <button id="add-peserta-btn" type="button" class="ml-3 btn btn-primary flex flex-row items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-150 focus:outline-none min-w-[80px] whitespace-nowrap text-base" style="min-width:80px; border-radius:10px;">
+                                    <i class="fa-solid fa-plus mr-3"></i>
+                                    <span class="text-right whitespace-nowrap">Invoice</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <table id="data-peserta-table" class="w-full display stripe hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center align-middle">No</th>
+                                    <th class="text-center align-middle">Periode</th>
+                                    <th class="text-center align-middle">Jenis Invoice</th>
+                                    <th class="text-center align-middle">No. Invoice</th>
+                                    <th class="text-center align-middle">Tanggal Invoice</th>
+                                    <!-- <th class="text-center align-middle">Jumlah Premi Karyawan</th> -->
+                                    <th class="text-center align-middle">Jumlah Peserta</th>
+                                    <th class="text-center align-middle">Total Premi</th>
+                                    <th class="text-center align-middle">PIC</th>
+                                    <th class="text-center align-middle">Status</th>
+                                    <th class="text-center align-middle">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data loaded via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
     <?php render_partial('footer'); ?>
 
@@ -153,5 +156,5 @@ include_once __DIR__ . '/partials/_init.php';
     <!-- Page script -->
     <script src="assets/js/manajemen-invoice.js"></script>
 </body>
+
 </html>
-                        

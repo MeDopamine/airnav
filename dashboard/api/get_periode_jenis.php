@@ -46,12 +46,22 @@ if ($mode === 'periode_jenis') {
         echo json_encode(['ok' => false, 'msg' => 'Periode required']);
         exit;
     }
-    $sql = "SELECT DISTINCT jenis_premi FROM data_peserta WHERE periode='" . $periode . "' ORDER BY jenis_premi ASC";
+    $sql = "SELECT DISTINCT jenis_premi FROM data_peserta WHERE periode='" . $periode . "' AND status_data = 1 ORDER BY jenis_premi ASC";
     $res = mysqli_query($conn, $sql);
+    $jenis_premi_map = [
+        '1' => 'JHT REGULAR', // JHT Regular
+        '2' => 'JHT TOPUP', // JHT Topup
+        '3' => 'PKP REGULAR', // PKP Regular
+    ];
     $jenis_list = [];
     if ($res) {
         while ($row = mysqli_fetch_assoc($res)) {
-            $jenis_list[] = ['jenis_premi' => $row['jenis_premi']];
+            $value = $row['jenis_premi'];
+            $name = $jenis_premi_map[$value] ?? $value;
+            $jenis_list[] = [
+                'jenis_value' => $value,
+                'jenis_name'  => $name
+            ];
         }
         mysqli_free_result($res);
     }

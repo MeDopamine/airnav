@@ -10,6 +10,7 @@ include_once __DIR__ . '/partials/_init.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +35,7 @@ include_once __DIR__ . '/partials/_init.php';
     <!-- SweetAlert2 custom styles -->
     <link rel="stylesheet" href="assets/css/swal-custom.css">
 </head>
+
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
         <?php render_partial('sidebar'); ?>
@@ -92,7 +94,7 @@ include_once __DIR__ . '/partials/_init.php';
                                     <th class="text-center align-middle">Jenis Premi</th>
                                     <th class="text-center align-middle">No. Invoice</th>
                                     <th class="text-center align-middle">Tanggal Invoice</th>
-                                    <th class="text-center align-middle">Jumlah Premi Karyawan</th>
+                                    <!-- <th class="text-center align-middle">Jumlah Premi Karyawan</th> -->
                                     <th class="text-center align-middle">Jumlah Peserta</th>
                                     <th class="text-center align-middle">Total Premi</th>
                                     <th class="text-center align-middle">PIC</th>
@@ -128,4 +130,5 @@ include_once __DIR__ . '/partials/_init.php';
     <!-- Page script -->
     <script src="assets/js/riwayat-invoice.js"></script>
 </body>
+
 </html>

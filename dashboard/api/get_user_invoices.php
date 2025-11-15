@@ -36,7 +36,7 @@ if ($res) {
         $flag_val = isset($row['flag']) ? (int)$row['flag'] : 0;
         $status_label = '';
         $status_color = '';
-        
+
         if ($flag_val === 1) {
             $status_label = 'Verified';
             $status_color = 'bg-green-100 text-green-800';
@@ -47,7 +47,7 @@ if ($res) {
             $status_label = 'Pending';
             $status_color = 'bg-yellow-100 text-yellow-800';
         }
-        
+
         $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full ' . $status_color . '">' . $status_label . '</span>';
 
         $urlinvoice = '';
@@ -62,6 +62,13 @@ if ($res) {
             $download_invoice_btn = '<button class="text-gray-500 bg-gray-100 px-3 py-2 rounded-md inline-flex items-center justify-center cursor-not-allowed" disabled><i class="fa-solid fa-file-pdf"></i><span>No File</span></button>';
         }
 
+        $download_peserta_link = 'api/download_peserta.php?id=' . (int)$row['id'];
+        if ($periode_v) $download_peserta_link .= '&periode=' . urlencode($periode_v);
+        if ($jenis_premi) $download_peserta_link .= '&jenis=' . urlencode($jenis_premi);
+
+        $download_peserta_btn = '<a href="' . htmlspecialchars($download_peserta_link) . '" class="download-peserta text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md inline-flex items-center justify-center w-40" data-periode="' . htmlspecialchars($periode_v) . '" data-id="' . (int)$row['id'] . '"><i class="fa-solid fa-file-excel mr-2"></i><span>Peserta</span></a>';
+
+
         // Add approval buttons only for pending invoices
         $approval_btns = '';
         if ($flag_val === 0 || $flag_val === null) {
@@ -71,7 +78,7 @@ if ($res) {
                 '</div>';
         }
 
-        $actions = '<div class="flex flex-col items-center gap-2">' . $download_invoice_btn . $approval_btns . '</div>';
+        $actions = '<div class="flex flex-col items-center gap-2">' . $download_invoice_btn . $download_peserta_btn . $approval_btns . '</div>';
 
         // additional optional fields: jenis premi, jumlah premi karyawan, jumlah peserta, PIC
         $jenis_premi_val = $jenis_premi ?: (isset($row['jenis']) ? $row['jenis'] : '');
@@ -104,4 +111,3 @@ mysqli_close($conn);
 header('Content-Type: application/json');
 echo json_encode(['data' => $data]);
 exit;
-?>

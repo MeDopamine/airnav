@@ -139,7 +139,7 @@ function loadPeriodeTable() {
                   case 0:
                     status_data = "Not Approved";
                     btnClass =
-                      "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
+                      "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800";
                     break;
                   case 1:
                     status_data = "Approved";
@@ -149,7 +149,7 @@ function loadPeriodeTable() {
                   case 2:
                     status_data = "rejected";
                     btnClass =
-                      "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800";
+                      "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800";
                     break;
                 }
                 return (
@@ -325,6 +325,10 @@ $(document).on("click", ".btn-lihat-peserta", function () {
     ) {
       // 2. Ambil array yang benar menggunakan KEY STRING
       var dataForStatus = resp.data[String(status)] || [];
+      // var filteredData = dataForStatus.filter(function (row) {
+      //   // Gunakan String() untuk perbandingan yang aman
+      //   return String(row.status) === "1";
+      // });
 
       if (dataForStatus.length === 0) {
         Swal.fire({
@@ -350,8 +354,20 @@ $(document).on("click", ".btn-lihat-peserta", function () {
       html +=
         '<table id="modal-peserta-table" class="display stripe hover w-full" style="width:100%;font-size:13px;">';
       html +=
-        "<thead><tr><th>No</th><th>NIK</th><th>Periode</th><th>Jenis Premi</th><th>Jumlah Premi Karyawan</th><th>Jumlah Premi PT</th><th>Total Premi</th><th>PIC</th><th>Status</th><th>Approval</th><th>Created At</th></tr></thead><tbody>";
+        "<thead><tr><th>No</th><th>Nama</th><th>TMT Member</th><th>NIP</th><th>NIK</th><th>Periode Invoice</th><th>Jenis Invoice</th><th>Gapok</th><th>Premi Karyawan</th><th>Premi Perusahaan</th><th>Total Premi</th><th>PIC</th><th>Status</th><th>Approval</th><th>Created At</th></tr></thead><tbody>";
 
+      function formatDate(dateString) {
+        if (!dateString) return "";
+        try {
+          var d = new Date(dateString);
+          var day = ("0" + d.getDate()).slice(-2);
+          var month = ("0" + (d.getMonth() + 1)).slice(-2);
+          var year = d.getFullYear();
+          return day + "-" + month + "-" + year;
+        } catch (e) {
+          return dateString; // kembalikan string asli jika format salah
+        }
+      }
       // 5. Gunakan dataForStatus.forEach
       dataForStatus.forEach(function (row, idx) {
         // ... (Sisa kode parser Anda)
@@ -369,6 +385,17 @@ $(document).on("click", ".btn-lihat-peserta", function () {
           var n = parseFloat(s);
           return isNaN(n) ? 0 : n;
         }
+
+        var nip = row.nip || "";
+        var nama = row.nama || "";
+        var tmt_asuransi = formatDate(row.tmt_asuransi); // Gunakan helper
+        var numGapok = parseAmount(row.gapok);
+        var gapok =
+          "Rp " +
+          numGapok.toLocaleString("id-ID", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
         var jenisPremi = "";
 
         // var jenisPremi =
@@ -428,23 +455,25 @@ $(document).on("click", ".btn-lihat-peserta", function () {
             status = "Aktif";
             break;
           default:
-            status = String(row.status || "");
+            status = "CLTP";
         }
         var approveBtn = "";
+        let statusData = "";
         switch (row.status_data) {
           case "0":
-            approveBtn =
-              '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800"> Not Approved </span>';
+            statusData = "Not Approved";
+            approveBtn = `<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800"> ${statusData} </span>`;
             break;
           case "1":
-            approveBtn =
-              '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"> Approved </span>';
+            statusData = "Approved";
+            approveBtn = `<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"> ${statusData} </span>`;
             break;
           case "2":
-            approveBtn =
-              '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800"> Rejected </span>';
+            statusData = "Rejected";
+            approveBtn = `<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800"> ${statusData} </span>`;
             break;
         }
+        const nik = row.nik ?? "-";
         // var approved = row.status_data == 1 ? 1 : 0;
         // var badgeClass = approved
         //   ? "px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800"
@@ -456,12 +485,17 @@ $(document).on("click", ".btn-lihat-peserta", function () {
         //   '<span class="' + btnClass + '">' + status_data + "</span>";
         html += "<tr>";
         html += '<td class="text-center">' + (idx + 1) + "</td>";
-        html += '<td class="text-center">' + row.nik + "</td>";
+        html += '<td class="text-center">' + row.nama + "</td>";
+        html +=
+          '<td class="text-center">' + formatDate(row.tmt_asuransi) + "</td>";
+        html += '<td class="text-center">' + row.nip + "</td>";
+        html += '<td class="text-center">' + nik + "</td>";
         html +=
           '<td class="text-center">' +
           formatPeriodeDisplay(row.periode) +
           "</td>";
         html += '<td class="text-center">' + jenisPremi + "</td>";
+        html += '<td class="text-center">' + gapok + "</td>";
         html += '<td class="text-center">' + jmlKry + "</td>";
         html += '<td class="text-center">' + jmlPt + "</td>";
         html += '<td class="text-center">' + totalPremiFormatted + "</td>";
@@ -504,11 +538,11 @@ $(document).on("click", ".btn-lihat-peserta", function () {
       }
 
       titleText += status == 1 ? " (Approved)" : " (Not Approved)";
-
+      const columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; // Sesuaikan dengan kolom yang ingin ditampilkan
       Swal.fire({
         title: titleText,
         html: html,
-        width: "65vw",
+        width: "85vw",
         customClass: { popup: "swal2-modal-peserta" },
         showCloseButton: true,
         showCancelButton: false,
@@ -647,61 +681,63 @@ $(document).on("click", ".btn-lihat-peserta", function () {
                         className:
                           "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
                         exportOptions: {
-                          columns: [0, 1, 2, 3, 4, 5],
+                          columns: columns,
+                          modifier: { search: "none" },
                           format: {
                             body: function (data, row, column, node) {
-                              if (column === 3) {
-                                var num = String(data)
-                                  .replace(/[^\d,\.]/g, "")
-                                  .replace(/\.(?=\d{3,})/g, "")
-                                  .replace(",", ".");
-                                return num;
-                              }
-                              if (column === 5) {
-                                var match = String(data).match(
-                                  />(Approved|Not Approved)</
-                                );
-                                return match ? match[1] : data;
+                              if (column === 13) {
+                                if (data.includes("Not Approved"))
+                                  return "Not Approved";
+                                if (data.includes("Approved"))
+                                  return "Approved";
+                                if (data.includes("Rejected"))
+                                  return "Rejected";
                               }
                               return data;
                             },
                           },
                         },
                       },
-                      {
-                        extend: "pdf",
-                        text: '<i class="fa-solid fa-file-pdf mr-2" style="font-size:18px;"></i><span class="font-semibold">PDF</span>',
-                        className:
-                          "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
-                        orientation: "portrait",
-                        pageSize: "A4",
-                        customize: function (doc) {
-                          doc.defaultStyle.fontSize = 10;
-                          doc.pageMargins = [30, 20, 30, 20];
-                          doc.content[1].table.widths = [
-                            20, // No
-                            80, // NIK
-                            50, // Periode
-                            75, // Total Premi
-                            60, // PIC
-                            65, // Approval
-                          ];
-                          var body = doc.content[1].table.body;
-                          for (var i = 0; i < body.length; i++) {
-                            for (var j = 0; j < body[i].length; j++) {
-                              body[i][j].alignment = "center";
-                              body[i][j].margin = [0, 4, 0, 4];
-                            }
-                          }
-                        },
-                      },
+                      // {
+                      //   extend: "pdf",
+                      //   text: '<i class="fa-solid fa-file-pdf mr-2" style="font-size:18px;"></i><span class="font-semibold">PDF</span>',
+                      //   className:
+                      //     "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
+                      //   exportOptions: {
+                      //     columns: columns,
+                      //     modifier: { search: "none" },
+                      //   },
+                      //   orientation: "portrait",
+                      //   pageSize: "A4",
+                      //   customize: function (doc) {
+                      //     doc.defaultStyle.fontSize = 10;
+                      //     doc.pageMargins = [30, 20, 30, 20];
+                      //     doc.content[1].table.widths = [
+                      //       20, // No
+                      //       80, // NIK
+                      //       50, // Periode
+                      //       75, // Total Premi
+                      //       60, // PIC
+                      //       65, // Approval
+                      //     ];
+                      //     var body = doc.content[1].table.body;
+                      //     for (var i = 0; i < body.length; i++) {
+                      //       for (var j = 0; j < body[i].length; j++) {
+                      //         body[i][j].alignment = "center";
+                      //         body[i][j].margin = [0, 4, 0, 4];
+                      //       }
+                      //     }
+                      //   },
+                      // },
                       {
                         extend: "print",
                         text: '<i class="fa-solid fa-print mr-2" style="font-size:18px;"></i><span class="font-semibold">Print</span>',
                         className:
                           "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                        exportOptions: {
+                          columns: columns,
+                          modifier: { search: "none" },
+                        },
                       },
                     ]
                   : [
@@ -711,61 +747,63 @@ $(document).on("click", ".btn-lihat-peserta", function () {
                         className:
                           "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
                         exportOptions: {
-                          columns: [0, 1, 2, 3, 4, 5],
+                          columns: columns,
+                          modifier: { search: "none" },
                           format: {
                             body: function (data, row, column, node) {
-                              if (column === 3) {
-                                var num = String(data)
-                                  .replace(/[^\d,\.]/g, "")
-                                  .replace(/\.(?=\d{3,})/g, "")
-                                  .replace(",", ".");
-                                return num;
-                              }
-                              if (column === 5) {
-                                var match = String(data).match(
-                                  />(Approved|Not Approved)</
-                                );
-                                return match ? match[1] : data;
+                              if (column === 13) {
+                                if (data.includes("Not Approved"))
+                                  return "Not Approved";
+                                if (data.includes("Approved"))
+                                  return "Approved";
+                                if (data.includes("Rejected"))
+                                  return "Rejected";
                               }
                               return data;
                             },
                           },
                         },
                       },
-                      {
-                        extend: "pdf",
-                        text: '<i class="fa-solid fa-file-pdf mr-2" style="font-size:18px;"></i><span class="font-semibold">PDF</span>',
-                        className:
-                          "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
-                        orientation: "portrait",
-                        pageSize: "A4",
-                        customize: function (doc) {
-                          doc.defaultStyle.fontSize = 10;
-                          doc.pageMargins = [30, 20, 30, 20];
-                          doc.content[1].table.widths = [
-                            20, // No
-                            80, // NIK
-                            50, // Periode
-                            75, // Total Premi
-                            60, // PIC
-                            65, // Approval
-                          ];
-                          var body = doc.content[1].table.body;
-                          for (var i = 0; i < body.length; i++) {
-                            for (var j = 0; j < body[i].length; j++) {
-                              body[i][j].alignment = "center";
-                              body[i][j].margin = [0, 4, 0, 4];
-                            }
-                          }
-                        },
-                      },
+                      // {
+                      //   extend: "pdf",
+                      //   text: '<i class="fa-solid fa-file-pdf mr-2" style="font-size:18px;"></i><span class="font-semibold">PDF</span>',
+                      //   className:
+                      //     "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
+                      //   exportOptions: {
+                      //     columns: columns,
+                      //     modifier: { search: "none" },
+                      //   },
+                      //   orientation: "landscape",
+                      //   pageSize: "A4",
+                      //   customize: function (doc) {
+                      //     doc.defaultStyle.fontSize = 10;
+                      //     doc.pageMargins = [30, 20, 30, 20];
+                      //     doc.content[1].table.widths = [
+                      //       20, // No
+                      //       80, // NIK
+                      //       50, // Periode
+                      //       75, // Total Premi
+                      //       60, // PIC
+                      //       65, // Approval
+                      //     ];
+                      //     var body = doc.content[1].table.body;
+                      //     for (var i = 0; i < body.length; i++) {
+                      //       for (var j = 0; j < body[i].length; j++) {
+                      //         body[i][j].alignment = "center";
+                      //         body[i][j].margin = [0, 4, 0, 4];
+                      //       }
+                      //     }
+                      //   },
+                      // },
                       {
                         extend: "print",
                         text: '<i class="fa-solid fa-print mr-2" style="font-size:18px;"></i><span class="font-semibold">Print</span>',
                         className:
                           "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                        exportOptions: {
+                          columns: columns,
+                          modifier: { search: "none" },
+                        },
                       },
                     ],
               order: [[1, "asc"]],
@@ -774,6 +812,7 @@ $(document).on("click", ".btn-lihat-peserta", function () {
                 { targets: "_all", className: "text-center" },
               ],
             });
+            dt.column(12).search("Aktif").draw();
             // After DataTable initialized, set Approve All initial enabled/disabled state (only for AdminTL)
             if (typeof userRole !== "undefined" && userRole === "admintl") {
               try {
@@ -862,23 +901,23 @@ $(document).ready(function () {
       { orderable: false, targets: [0, 6, 7] }, // No, Status, Aksi column
       {
         className: "text-center align-middle",
-        targets: [0, 1, 2, 3, 4, 5, 6, 7],
+        targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       },
       {
         targets: 0,
-        width: "50px",
+        width: "20px",
         render: function (data, type, row, meta) {
           return meta.row + 1;
         },
       },
-      { targets: 1, width: "180px" }, // Periode
-      { targets: 2, width: "140px" }, // Jenis Premi
-      { targets: 3, width: "160px" }, // Jumlah Premi Karyawan
-      { targets: 4, width: "160px" }, // Jumlah Premi PT
-      { targets: 5, width: "160px" }, // Total Premi
-      { targets: 6, width: "120px" }, // Status
+      { targets: 1, width: "100px" },
+      { targets: 2, width: "100px" },
+      { targets: 3, width: "100px" },
+      { targets: 4, width: "130px" },
+      { targets: 5, width: "130px" },
+      { targets: 6, width: "160px" },
       {
-        targets: 7,
+        targets: 9,
         width: "150px",
         visible: true,
         orderable: false,
@@ -893,55 +932,61 @@ $(document).ready(function () {
         className:
           "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
         exportOptions: {
-          columns: [0, 1, 2, 3, 4, 5, 6],
+          columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
           format: {
             body: function (data, row, column, node) {
-              if (column === 5) {
-                var num = String(data)
-                  .replace(/[^\d,\.]/g, "")
-                  .replace(/\.(?=\d{3,})/g, "")
-                  .replace(",", ".");
-                return num;
+              if (column === 9) {
+                console.log(data);
+                if (data.includes("Not Approved")) return "Not Approved";
+                if (data.includes("Approved")) return "Approved";
+                if (data.includes("Rejected")) return "Rejected";
               }
-              if (column === 6) {
-                var match =
-                  String(data).match(/>(Approved|Not Approved)</) ||
-                  String(data).match(/>(Verified|Not Verified)</);
-                return match ? match[1] : data;
-              }
+              // if (column === 5) {
+              //   var num = String(data)
+              //     .replace(/[^\d,\.]/g, "")
+              //     .replace(/\.(?=\d{3,})/g, "")
+              //     .replace(",", ".");
+              //   return num;
+              // }
+              // if (column === 6) {
+              //   var match =
+              //     String(data).match(/>(Approved|Not Approved)</) ||
+              //     String(data).match(/>(Verified|Not Verified)</);
+              //   return match ? match[1] : data;
+              // }
               return data;
             },
           },
         },
       },
-      {
-        extend: "pdf",
-        text: '<i class="fa-solid fa-file-pdf mr-2" style="font-size:18px;"></i><span class="font-semibold">PDF</span>',
-        className:
-          "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
-        exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
-        orientation: "portrait",
-        pageSize: "A4",
-        customize: function (doc) {
-          doc.defaultStyle.fontSize = 10;
-          doc.pageMargins = [30, 20, 30, 20];
-          // Adjust widths to match new columns: No, Periode, Jenis, Jml Karyawan, Jml PT, Total, Status, Aksi
-          doc.content[1].table.widths = [20, 70, 70, 80, 80, 80, 65, 65];
-          var body = doc.content[1].table.body;
-          for (var i = 0; i < body.length; i++) {
-            for (var j = 0; j < body[i].length; j++) {
-              body[i][j].alignment = "center";
-              body[i][j].margin = [0, 4, 0, 4];
-            }
-          }
-        },
-      },
+      // {
+      //   extend: "pdf",
+      //   text: '<i class="fa-solid fa-file-pdf mr-2" style="font-size:18px;"></i><span class="font-semibold">PDF</span>',
+      //   className:
+      //     "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
+      //   exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+      //   orientation: "landscape",
+      //   pageSize: "A4",
+      //   customize: function (doc) {
+      //     doc.defaultStyle.fontSize = 10;
+      //     doc.pageMargins = [30, 20, 30, 20];
+      //     // Adjust widths to match new columns: No, Periode, Jenis, Jml Karyawan, Jml PT, Total, Status, Aksi
+      //     doc.content[1].table.widths = [20, 70, 70, 80, 80, 80, 65, 65];
+      //     var body = doc.content[1].table.body;
+      //     for (var i = 0; i < body.length; i++) {
+      //       for (var j = 0; j < body[i].length; j++) {
+      //         body[i][j].alignment = "center";
+      //         body[i][j].margin = [0, 4, 0, 4];
+      //       }
+      //     }
+      //   },
+      // },
       {
         extend: "print",
         text: '<i class="fa-solid fa-print mr-2" style="font-size:18px;"></i><span class="font-semibold">Print</span>',
         className:
           "mr-2 px-6 py-2 border border-blue-300 text-blue-700 font-semibold rounded-full bg-white hover:bg-blue-600 hover:text-white transition duration-150 focus:outline-none flex items-center",
-        exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
+        exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
       },
     ],
   });
