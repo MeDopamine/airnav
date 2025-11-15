@@ -69,6 +69,7 @@ try {
   $spreadsheet = IOFactory::load($fileTmpPath);
   $sheet = $spreadsheet->getActiveSheet();
   $rows = $sheet->toArray();
+  // $idbatch = "batch_" . date('Ymd_His') . "_" . uniqid();
 
   // Jika baris pertama adalah judul gabungan, ambil baris kedua sebagai header
   $headerRowIdx = 0;
@@ -126,6 +127,7 @@ try {
     'JHT TOPUP' => 2,
     'PKP REGULAR' => 3,
   ];
+  $batch_map = [];
   foreach ($dataRows as $row) {
     // Lewati baris kosong
     if (count(array_filter($row, fn($v) => trim((string)$v) !== '')) === 0) continue;
@@ -226,6 +228,20 @@ try {
       }
       $dbData[$dbCol] = $val;
     }
+    // --- TAMBAHKAN BLOK INI ---
+    // Buat idbatch unik BERDASARKAN jenis_premi
+
+    $current_jenis_premi = $dbData['jenis_premi'] ?? 'unknown';
+
+    if (isset($batch_map[$current_jenis_premi])) {
+      // Jika kita sudah membuat idbatch untuk jenis ini, gunakan lagi
+      $idbatch = $batch_map[$current_jenis_premi];
+    } else {
+      // Jika ini pertama kalinya kita melihat jenis ini, buat idbatch baru
+      $idbatch = "batch_" . date('Ymd_His') . "_" . $current_jenis_premi . "_" . uniqid();
+      $batch_map[$current_jenis_premi] = $idbatch; // Simpan untuk baris berikutnya
+    }
+    // --- AKHIR BLOK ---
     // Validasi minimal NIK dan Periode
     if (empty($dbData['nip']) || empty($dbData['periode'])) continue;
     // Cek duplikasi berdasarkan NIK dan Periode
@@ -240,7 +256,7 @@ try {
 
     // Ensure status_data is explicitly set so imported rows are pending approval (0)
     // Insert with additional premi fields: jenis_premi, jml_premi_krywn, jml_premi_pt
-    $stmt = $conn->prepare("INSERT INTO data_peserta (nik, nama, nip, periode, jenis_premi, gapok, tmt_asuransi, jml_premi_krywn, jml_premi_pt, total_premi, pic, `status`, status_data, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE)");
+    $stmt = $conn->prepare("INSERT INTO data_peserta (nik, nama, nip, periode, jenis_premi, gapok, tmt_asuransi, jml_premi_krywn, jml_premi_pt, total_premi, pic, `status`, status_data, idbatch, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE)");
     // $stmt = $conn->prepare("INSERT INTO data_peserta (nik, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, pic, status_data, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE)");
     if ($stmt === false) {
       http_response_code(500);
@@ -266,7 +282,7 @@ try {
     $b_status = isset($dbData['status']) ? $dbData['status'] : null;
     // Bind as strings to avoid locale/float conversion problems; DB will cast where necessary
     $stmt->bind_param(
-      'sssssssssssss',
+      'ssssssssssssss',
       $b_nik,
       $b_nama,
       $b_nip,
@@ -279,96 +295,11 @@ try {
       $b_total_premi,
       $b_pic,
       $b_status,
-      $status_data_import
+      $status_data_import,
+      $idbatch
     );
     if ($stmt->execute()) $inserted++;
   }
-
-  // === Kirim ke endpoint API eksternal ===
-  try {
-    // Siapkan array payload dari data yang berhasil di-insert
-    $apiPayload = [
-      "airnav/premi/upload" => []
-    ];
-
-    // Ambil kembali data yang baru diinsert (bisa dari memori atau query)
-    // $result = $conn->query("SELECT nik, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, pic 
-    //                         FROM data_peserta 
-    //                         WHERE DATE(created_at) = CURRENT_DATE");
-    $result = $conn->query("SELECT nik, nama, nip, periode, jenis_premi, gapok, tmt_asuransi, jml_premi_krywn, jml_premi_pt, total_premi, pic, `status`
-                                FROM data_peserta 
-                                WHERE DATE(created_at) = CURRENT_DATE");
-
-    while ($row = $result->fetch_assoc()) {
-      $apiPayload["airnav/premi/upload"][] = [
-        "periode" => $row['periode'],
-        "nik" => $row['nik'],
-        "nama" => $row['nama'],
-        "nip" => $row['nip'],
-        "gapok" => (float)$row['gapok'],
-        "jenis_premi" => $row['jenis_premi'],
-        "tmt_asuransi" => $row['tmt_asuransi'],
-        "tgl_lahir" => "",
-        "tgl_diangkat" => "",
-        "isg" => "1",
-        "isik" => "0",
-        "jml_rapel" => 0,
-        "jml_premi_karyawan" => (float)$row['jml_premi_krywn'],
-        "jml_premi_perusahaan" => (float)$row['jml_premi_pt'],
-        "total_premi" => (float)$row['total_premi'],
-        "link_file" => $fileName,
-        "pic" => $row['pic'],
-        "status" => $row['status'],
-        "idbatch" => "BATCH_1",
-        "tgl" => date('Y-m-d'),
-        "status_data" => "1"
-        // "periode"=> "202410",
-        // "nik"=> "123456",
-        // "jenis_premi"=> "1",
-        // "tgl_lahir"=> "1990-01-15",
-        // "tgl_diangkat"=> "2015-03-01",
-        // "tmt_asuransi"=> "2015-04-01",
-        // "isg"=> "1",
-        // "isik"=> "0",
-        // "jml_rapel"=> 0,
-        // "jml_premi_karyawan"=> 100000,
-        // "jml_premi_perusahaan"=> 200000,
-        // "total_premi"=> 300000,
-        // "link_file"=> "test",
-        // "pic"=> "PIC_USER_A",
-        // "idbatch"=> "BATCH_001",
-        // "tgl"=> "2024-10-28",
-        // "status_data"=> "1"
-      ];
-    }
-
-    // Encode ke JSON
-    $jsonPayload = json_encode($apiPayload);
-
-    // Kirim via cURL
-    $ch = curl_init("https://dev-api-gina.taspenlife.com/airnav/premi/uploads"); // ganti dengan endpoint kamu
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-      'Content-Type: application/json',
-      'Accept: application/json',
-    ]);
-
-    $apiResponse = curl_exec($ch);
-    $curlErr = curl_error($ch);
-    curl_close($ch);
-
-    if ($curlErr) {
-      error_log("Error kirim ke API: $curlErr");
-    } else {
-      error_log("Json Payload: $jsonPayload");
-      error_log("Respon API: $apiResponse");
-    }
-  } catch (Exception $ex) {
-    error_log("Gagal kirim ke API: " . $ex->getMessage());
-  }
-
 
   // Catat ke riwayat upload
   $log_status = ($inserted > 0) ? 'Berhasil' : 'Gagal';

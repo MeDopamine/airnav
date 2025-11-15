@@ -2,6 +2,7 @@
 // Require authentication - admin dan admintl bisa akses
 include_once __DIR__ . '/../auth.php';
 require_login();
+// is_admintl();
 require_admin_or_admintl();
 
 include '../db/db.php';
@@ -99,10 +100,10 @@ include_once __DIR__ . '/partials/_init.php';
                                     }
                                     ?>
                                 </select>
-                                <button id="add-peserta-btn" type="button" class="ml-3 btn btn-primary flex flex-row items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-150 focus:outline-none min-w-[80px] whitespace-nowrap text-base" style="min-width:80px; border-radius:10px;">
+                                <!-- <button id="add-peserta-btn" type="button" class="ml-3 btn btn-primary flex flex-row items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-150 focus:outline-none min-w-[80px] whitespace-nowrap text-base" style="min-width:80px; border-radius:10px;">
                                     <i class="fa-solid fa-plus mr-3"></i>
                                     <span class="text-right whitespace-nowrap">Invoice</span>
-                                </button>
+                                </button> -->
                             </div>
                         </div>
 

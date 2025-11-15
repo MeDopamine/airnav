@@ -570,6 +570,56 @@ $(document).ready(function () {
     });
   });
 
+  $(document).on("click", ".btn-revision", function (e) {
+    e.preventDefault();
+    var invoiceId = $(this).data("id");
+    var idbatch = $(this).data("idbatch");
+
+    Swal.fire({
+      title: "Revision Invoice?",
+      text: "Apakah Anda yakin ingin merevisi invoice ini?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Revision",
+      cancelButtonText: "Batal",
+    }).then(function (result) {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: "api/approve_invoice.php",
+          type: "POST",
+          dataType: "json",
+          data: {
+            id: invoiceId,
+            idbatch: idbatch,
+            action: "revision",
+          },
+          success: function (resp) {
+            console.log("Revision response:", resp);
+            if (resp && resp.ok) {
+              Toast.fire({
+                icon: "success",
+                title: "Invoice berhasil di-revision",
+              });
+              table.ajax.reload();
+            } else {
+              Toast.fire({
+                icon: "error",
+                title: resp.msg || "Gagal revision invoice",
+              });
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error("Revision error:", error, xhr.responseText);
+            Toast.fire({
+              icon: "error",
+              title: "Terjadi kesalahan saat revision invoice",
+            });
+          },
+        });
+      }
+    });
+  });
+
   // Handle Edit button click
   $(document).on("click", ".btn-edit", function (e) {
     e.preventDefault();

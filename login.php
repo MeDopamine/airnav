@@ -66,79 +66,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-        ?>
-        <!DOCTYPE html>
-        <html lang="id">
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width,initial-scale=1">
-            <title>Masuk - AirNav</title>
-            <!-- Icon -->
-            <link rel="icon" href="https://placehold.co/32x32/0033A0/FFFFFF?text=M" type="image/png">
-            <link rel="stylesheet" href="/dashboard/assets/css/tailwind.output.css">
-            <style>body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }</style>
-        </head>
-        <body class="min-h-screen bg-gray-100 flex items-center justify-center">
-            <div class="max-w-md w-full bg-white rounded-xl shadow-md p-8">
-                <div class="text-center mb-6">
-                    <h1 class="text-2xl font-semibold text-gray-800">Masuk ke AirNav</h1>
-                    <p class="text-sm text-gray-500 mt-2">Masukkan email dan password Anda untuk melanjutkan</p>
-                </div>
+?>
+<!DOCTYPE html>
+<html lang="id">
 
-                <?php if (!empty($errors)): ?>
-                    <div class="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded">
-                        <ul class="text-sm">
-                            <?php foreach ($errors as $e) echo '<li>'.htmlspecialchars($e).'</li>'; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Masuk - AirNav</title>
+    <!-- Icon -->
+    <link rel="icon" href="https://placehold.co/32x32/0033A0/FFFFFF?text=M" type="image/png">
+    <link rel="stylesheet" href="/dashboard/assets/css/tailwind.output.css">
+    <style>
+        body {
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+    </style>
+</head>
 
-                <?php if (!empty($not_registered)): ?>
-                    <div class="mb-4 bg-blue-50 border border-blue-200 text-blue-700 p-3 rounded">
-                        <p class="text-sm">Email belum terdaftar. Silakan <a href="/register.php" class="font-medium text-blue-600">daftar</a> terlebih dahulu untuk membuat akun.</p>
-                    </div>
-                <?php endif; ?>
+<body class="min-h-screen bg-gray-100 flex items-center justify-center">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-md p-8">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-semibold text-gray-800">Masuk ke AirNav</h1>
+            <p class="text-sm text-gray-500 mt-2">Masukkan email dan password Anda untuk melanjutkan</p>
+        </div>
 
-                <div id="client-error" class="mb-4 hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded"></div>
-
-                <form method="post" action="" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Email</label>
-                        <input name="email" type="text" value="<?php echo htmlspecialchars($_POST['email'] ?? '') ?>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Password</label>
-                        <input name="password" type="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-
-                    <div>
-                        <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md">Masuk</button>
-                    </div>
-                </form>
-
-                <div class="mt-4 text-center text-sm text-gray-600">
-                        Belum punya akun? <a href="/register.php" class="text-blue-600 hover:underline">Daftar</a>
-                    </div>
-                <script>
-                    // Client-side validation (simple)
-                    (function(){
-                        const form = document.querySelector('form');
-                        form.addEventListener('submit', function(e){
-                            const email = form.email.value.trim();
-                            const pass = form.password.value;
-                            let errors = [];
-                            if (!email) errors.push('Email harus diisi');
-                            if (!pass) errors.push('Password harus diisi');
-                            if (errors.length) {
-                                e.preventDefault();
-                                const container = document.getElementById('client-error');
-                                container.innerHTML = '<ul class="text-sm">' + errors.map(er => '<li>'+er+'</li>').join('') + '</ul>';
-                                container.classList.remove('hidden');
-                                container.scrollIntoView({behavior:'smooth', block:'center'});
-                            }
-                        });
-                    })();
-                </script>
+        <?php if (!empty($errors)): ?>
+            <div class="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded">
+                <ul class="text-sm">
+                    <?php foreach ($errors as $e) echo '<li>' . htmlspecialchars($e) . '</li>'; ?>
+                </ul>
             </div>
-        </body>
-        </html>
+        <?php endif; ?>
+
+        <?php if (!empty($not_registered)): ?>
+            <div class="mb-4 bg-blue-50 border border-blue-200 text-blue-700 p-3 rounded">
+                <p class="text-sm">Email belum terdaftar. Silakan <a href="/register.php" class="font-medium text-blue-600">daftar</a> terlebih dahulu untuk membuat akun.</p>
+            </div>
+        <?php endif; ?>
+
+        <div id="client-error" class="mb-4 hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded"></div>
+
+        <form method="post" action="" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input name="email" type="text" value="<?php echo htmlspecialchars($_POST['email'] ?? '') ?>" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Password</label>
+                <input name="password" type="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+
+            <div>
+                <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md">Masuk</button>
+            </div>
+        </form>
+
+        <!-- <div class="mt-4 text-center text-sm text-gray-600">
+                        Belum punya akun? <a href="/register.php" class="text-blue-600 hover:underline">Daftar</a>
+                    </div> -->
+        <script>
+            // Client-side validation (simple)
+            (function() {
+                const form = document.querySelector('form');
+                form.addEventListener('submit', function(e) {
+                    const email = form.email.value.trim();
+                    const pass = form.password.value;
+                    let errors = [];
+                    if (!email) errors.push('Email harus diisi');
+                    if (!pass) errors.push('Password harus diisi');
+                    if (errors.length) {
+                        e.preventDefault();
+                        const container = document.getElementById('client-error');
+                        container.innerHTML = '<ul class="text-sm">' + errors.map(er => '<li>' + er + '</li>').join('') + '</ul>';
+                        container.classList.remove('hidden');
+                        container.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                });
+            })();
+        </script>
+    </div>
+</body>
+
+</html>

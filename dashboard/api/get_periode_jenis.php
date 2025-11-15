@@ -12,6 +12,7 @@ header('Content-Type: application/json');
 
 $mode = isset($_GET['mode']) ? trim($_GET['mode']) : 'all';
 $periode = isset($_GET['periode']) ? trim($_GET['periode']) : '';
+$idbatch = isset($_GET['idbatch']) ? trim($_GET['idbatch']) : '';
 $jenis = isset($_GET['jenis']) ? trim($_GET['jenis']) : '';
 
 // Normalize periode to YYYYMM
@@ -46,7 +47,7 @@ if ($mode === 'periode_jenis') {
         echo json_encode(['ok' => false, 'msg' => 'Periode required']);
         exit;
     }
-    $sql = "SELECT DISTINCT jenis_premi FROM data_peserta WHERE periode='" . $periode . "' AND status_data = 1 ORDER BY jenis_premi ASC";
+    $sql = "SELECT DISTINCT jenis_premi FROM data_peserta WHERE periode='" . $periode . "' AND idbatch='" . $idbatch . "' and status_data = 1 ORDER BY jenis_premi ASC";
     $res = mysqli_query($conn, $sql);
     $jenis_premi_map = [
         '1' => 'JHT REGULAR', // JHT Regular
@@ -75,10 +76,11 @@ if ($mode === 'jenis_detail') {
         echo json_encode(['ok' => false, 'msg' => 'Periode required']);
         exit;
     }
-    $sql = "SELECT COUNT(*) as jumlah_peserta, SUM(total_premi) as total_premi FROM data_peserta WHERE periode='" . $periode . "'";
+    $sql = "SELECT COUNT(*) as jumlah_peserta, SUM(total_premi) as total_premi FROM data_peserta WHERE `status` = 1 AND periode='" . $periode . " '";
     if ($jenis !== '') {
         $jenis = mysqli_real_escape_string($conn, $jenis);
         $sql .= " AND jenis_premi='" . $jenis . "'";
+        $sql .= " AND idbatch='" . $idbatch . "'";
     }
     $res = mysqli_query($conn, $sql);
     if ($res && $row = mysqli_fetch_assoc($res)) {
@@ -100,11 +102,13 @@ $sql = "SELECT periode,
                COALESCE(SUM(CAST(REPLACE(REPLACE(CAST(jml_premi_pt AS CHAR), '.', ''), ',', '.') AS DECIMAL(15,2))),0) AS sum_pt,
                COALESCE(SUM(CAST(REPLACE(REPLACE(CAST(total_premi AS CHAR), '.', ''), ',', '.') AS DECIMAL(15,2))),0) AS sum_total,
                COUNT(*) AS jumlah_peserta,
+               IFNULL(idbatch, 0) AS idbatch,
                MAX(created_at) AS created_at,
                CASE WHEN COUNT(CASE WHEN status_data = 1 THEN 1 END) = COUNT(*) THEN 1
                     WHEN COUNT(CASE WHEN status_data = 1 THEN 1 END) > 0 THEN 2
                     ELSE 0 END AS approval_status
         FROM data_peserta
+        where `status`= 1
         GROUP BY periode, jenis_premi, status_data
         ORDER BY periode DESC, jenis_premi ASC, status_data ASC";
 
@@ -121,7 +125,8 @@ if ($res) {
             'sum_total' => 0 + $r['sum_total'],
             'jumlah_peserta' => (int)$r['jumlah_peserta'],
             'created_at' => $r['created_at'],
-            'approval_status' => (int)$r['approval_status']
+            'approval_status' => (int)$r['approval_status'],
+            'idbatch' => $r['idbatch']
         ];
     }
     mysqli_free_result($res);

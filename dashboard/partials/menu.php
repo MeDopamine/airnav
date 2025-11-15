@@ -28,12 +28,12 @@ $menuItems = [
         'icon' => '<i class="fa-solid fa-file-invoice mr-3" aria-hidden="true"></i>',
         'visible_to' => ['admintl']
     ],
-    [
-        'label' => 'Manajemen Peserta',
-        'href' => 'manajemen_peserta.php',
-        'icon' => '<i class="fa-solid fa-user-cog mr-3" aria-hidden="true"></i>',
-        'visible_to' => ['admintl']
-    ],
+    // [
+    //     'label' => 'Manajemen Peserta',
+    //     'href' => 'manajemen_peserta.php',
+    //     'icon' => '<i class="fa-solid fa-user-cog mr-3" aria-hidden="true"></i>',
+    //     'visible_to' => ['admintl']
+    // ],
     [
         'label' => 'Riwayat Invoice',
         'href' => 'riwayat_invoice.php',
@@ -66,5 +66,3 @@ foreach ($menuItems as $idx => $item) {
     echo htmlspecialchars($item['label']);
     echo '</a>' . PHP_EOL;
 }
-
-?>

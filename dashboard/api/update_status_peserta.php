@@ -35,10 +35,12 @@ if (isset($_POST['approve_all']) && isset($_POST['periode'])) {
     // prepared statement, optionally filter by jenis_premi
     if (isset($_POST['jenis']) && $_POST['jenis'] !== '') {
         $jenis_raw = trim($_POST['jenis']);
+        $idbatch_raw = isset($_POST['idbatch']) ? trim($_POST['idbatch']) : '';
         $jenis = mysqli_real_escape_string($conn, $jenis_raw);
-        $sql = "UPDATE data_peserta SET status_data = 1 WHERE periode = ? AND jenis_premi = ?";
+        $idbatch = mysqli_real_escape_string($conn, $idbatch_raw);
+        $sql = "UPDATE data_peserta SET status_data = 1 WHERE periode = ? AND jenis_premi = ? and idbatch = ?";
         if ($stmt = mysqli_prepare($conn, $sql)) {
-            mysqli_stmt_bind_param($stmt, 'ss', $periode, $jenis);
+            mysqli_stmt_bind_param($stmt, 'sss', $periode, $jenis, $idbatch);
             $exec = mysqli_stmt_execute($stmt);
             $affected = mysqli_stmt_affected_rows($stmt);
             mysqli_stmt_close($stmt);
