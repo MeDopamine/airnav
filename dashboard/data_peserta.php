@@ -119,6 +119,9 @@ function formatJenisPremiDisplay($jenisValue)
                             <thead>
                                 <tr>
                                     <th class="text-center align-middle">No</th>
+                                    <th class="text-center align-middle">Nama</th>
+                                    <th class="text-center align-middle">NIP</th>
+                                    <th class="text-center align-middle">NIK</th>
                                     <th class="text-center align-middle">Periode</th>
                                     <th class="text-center align-middle">Jenis Invoice</th>
                                     <th class="text-center align-middle">Jumlah Premi Karyawan</th>
@@ -132,7 +135,7 @@ function formatJenisPremiDisplay($jenisValue)
                                 <?php
                                 // fetch rows from data_peserta (urutkan berdasarkan periode terbaru dulu, lalu id)
                                 // Columns adjusted to match table header: Periode, Jenis Premi, Jumlah Premi Karyawan, Jumlah Premi PT, Total Premi, Status
-                                $sql = "SELECT id, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, status_data FROM data_peserta ORDER BY periode DESC, id DESC";
+                                $sql = "SELECT * FROM data_peserta ORDER BY periode DESC, id DESC";
                                 $res = mysqli_query($conn, $sql);
                                 $jenis_premi_map = [
                                     1 => 'JHT Regular',
@@ -145,6 +148,9 @@ function formatJenisPremiDisplay($jenisValue)
                                         // Kolom nomor urut, diisi oleh DataTables (td kosong, nanti diisi JS)
                                         echo '<td class="text-center"></td>';
                                         // Periode (disimpan sebagai YYYYMM) - tampilkan apa adanya; frontend JS will also provide friendly format where used
+                                        echo '<td class="text-center">' . htmlspecialchars($row['nama']) . '</td>';
+                                        echo '<td class="text-center">' . htmlspecialchars($row['nip']) . '</td>';
+                                        echo '<td class="text-center">' . htmlspecialchars($row['nik']) . '</td>';
                                         echo '<td class="text-center">' . htmlspecialchars($row['periode']) . '</td>';
                                         // Jenis Premi
                                         $jenis_premi_value = $row['jenis_premi'];

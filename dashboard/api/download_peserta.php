@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_login();
-if (!is_admin()) {
+if (!is_admin_or_admintl()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'msg' => 'Akses ditolak']);
@@ -36,7 +36,7 @@ if (empty($where)) {
     exit;
 }
 
-$sql = "SELECT nik, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, pic, status_data, created_at FROM data_peserta WHERE " . implode(' AND ', $where) . " ORDER BY nik ASC";
+$sql = "SELECT * FROM data_peserta WHERE " . implode(' AND ', $where) . " ORDER BY nik ASC";
 $res = mysqli_query($conn, $sql);
 if (!$res) {
     header('Content-Type: application/json');
@@ -134,7 +134,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
-$headers = ['NIK', 'Periode', 'Jenis Premi', 'Jumlah Premi Karyawan', 'Jumlah Premi PT', 'Total Premi', 'PIC', 'Approved', 'Created At'];
+$headers = ['NO', 'Nama', 'TMT Member', 'NIP', 'NIK', 'Periode Invoice', 'Jenis Invoice', 'Gapok', 'Premi Karyawan', 'Premi Perushaan', 'Total Premi', 'PIC', 'Status', 'Approval', 'Created At'];
 // write headers
 $col = 'A';
 foreach ($headers as $h) {
@@ -145,17 +145,59 @@ foreach ($headers as $h) {
 
 $rowNum = 2;
 foreach ($rows as $r) {
-    $approved = (isset($r['status_data']) && intval($r['status_data']) === 1) ? 'Yes' : 'No';
-    $sheet->setCellValue('A' . $rowNum, $r['nik']);
-    $sheet->setCellValue('B' . $rowNum, $r['periode']);
-    $sheet->setCellValue('C' . $rowNum, $r['jenis_premi']);
+    // $approved = (isset($r['status_data']) && intval($r['status_data']) === 1) ? 'Yes' : 'No';
+    switch ($r['jenis_premi']) {
+        case '1':
+            $r['jenis_premi'] = 'JHT REGULAR';
+            break;
+        case '2':
+            $r['jenis_premi'] = 'JHT TOPUP';
+            break;
+        case '3':
+            $r['jenis_premi'] = 'PKP REGULAR';
+            break;
+        default:
+            // leave as-is
+            break;
+    }
+    switch ($r['status_data']) {
+        case '0':
+            $r['status_data'] = 'Not Approved';
+            break;
+        case '1':
+            $r['status_data'] = 'Approved';
+            break;
+        case '2':
+            $r['status_data'] = 'Rejected';
+            break;
+        default:
+            $r['status_data'] = 'Pending';
+            break;
+    }
+    switch ($r['status']) {
+        case '1':
+            $r['status'] = 'Aktif';
+            break;
+        default:
+            $r['status'] = 'Non-Aktif';
+            break;
+    }
+    $sheet->setCellValue('A' . $rowNum, $rowNum - 1);
+    $sheet->setCellValue('B' . $rowNum, $r['nama']);
+    $sheet->setCellValue('C' . $rowNum, $r['tmt_asuransi']);
+    $sheet->setCellValue('D' . $rowNum, $r['nip']);
+    $sheet->setCellValue('E' . $rowNum, $r['nik']);
+    $sheet->setCellValue('F' . $rowNum, $r['periode']);
+    $sheet->setCellValue('G' . $rowNum, $r['jenis_premi']);
     // numeric columns
-    $sheet->setCellValue('D' . $rowNum, is_numeric($r['jml_premi_krywn']) ? (float)$r['jml_premi_krywn'] : $r['jml_premi_krywn']);
-    $sheet->setCellValue('E' . $rowNum, is_numeric($r['jml_premi_pt']) ? (float)$r['jml_premi_pt'] : $r['jml_premi_pt']);
-    $sheet->setCellValue('F' . $rowNum, is_numeric($r['total_premi']) ? (float)$r['total_premi'] : $r['total_premi']);
-    $sheet->setCellValue('G' . $rowNum, $r['pic']);
-    $sheet->setCellValue('H' . $rowNum, $approved);
-    $sheet->setCellValue('I' . $rowNum, $r['created_at']);
+    $sheet->setCellValue('H' . $rowNum, is_numeric($r['gapok']) ? (float)$r['gapok'] : $r['gapok']);
+    $sheet->setCellValue('I' . $rowNum, is_numeric($r['jml_premi_krywn']) ? (float)$r['jml_premi_krywn'] : $r['jml_premi_krywn']);
+    $sheet->setCellValue('J' . $rowNum, is_numeric($r['jml_premi_pt']) ? (float)$r['jml_premi_pt'] : $r['jml_premi_pt']);
+    $sheet->setCellValue('K' . $rowNum, is_numeric($r['total_premi']) ? (float)$r['total_premi'] : $r['total_premi']);
+    $sheet->setCellValue('L' . $rowNum, $r['pic']);
+    $sheet->setCellValue('M' . $rowNum, $r['status']);
+    $sheet->setCellValue('N' . $rowNum, $r['status_data']);
+    $sheet->setCellValue('O' . $rowNum, $r['created_at']);
     $rowNum++;
 }
 

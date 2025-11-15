@@ -35,16 +35,17 @@ $no = 1;
 if ($res) {
     while ($row = mysqli_fetch_assoc($res)) {
         // Get jenis premi - gunakan nilai langsung dari invoice_airnav
+        $periode_v = $row['periode'] ?: '';
         $jenis_premi_val = $row['jenis_premi'] ?: '';
 
         // Format tanggal
         $tgl_invoice = $row['created_at'] ? substr($row['created_at'], 0, 10) : '';
-        
+
         // Format nilai
         $jml_premi_krywn = isset($row['jml_premi_krywn']) ? (int)$row['jml_premi_krywn'] : 0;
         $total_premi = isset($row['total_premi']) ? (int)$row['total_premi'] : 0;
         $jumlah = isset($row['jumlah']) ? (int)$row['jumlah'] : 0;
-        
+
         // Map flag to status: 0=Pending, 1=Approved, 2=Rejected
         $flag_val = isset($row['flag']) ? (int)$row['flag'] : 0;
         if ($flag_val === 1) {
@@ -57,13 +58,22 @@ if ($res) {
 
         // Build action buttons
         $actions = '<div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">';
-        
+
+        $download_peserta_link = 'api/download_peserta.php?id=' . (int)$row['id'];
+        if ($periode_v) $download_peserta_link .= '&periode=' . urlencode($periode_v);
+        if ($jenis_premi_val) $download_peserta_link .= '&jenis=' . urlencode($jenis_premi_val);
+
+        $download_peserta_btn = '<a href="' . htmlspecialchars($download_peserta_link) . '" class="download-peserta text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md inline-flex items-center justify-center w-40" data-periode="' . htmlspecialchars($periode_v) . '" data-id="' . (int)$row['id'] . '"><i class="fa-solid fa-file-excel mr-2"></i><span>Peserta</span></a>';
+
+
         // Download button - jika ada file
         if (!empty($row['urlinvoice'])) {
             $download_link = '/dashboard/api/download_invoice.php?id=' . (int)$row['id'];
-            $actions .= '<a href="' . htmlspecialchars($download_link) . '" class="btn-download px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"><i class="fa-solid fa-download mr-1"></i>Download</a>';
+            // $actions .= '<a href="' . htmlspecialchars($download_link) . '" class="btn-download px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"><i class="fa-solid fa-file-pdf mr-2"></i><span>Invoice</span></a>';
+            $actions .= '<a href="' . htmlspecialchars($download_link) . '" class="download-invoice text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md inline-flex items-center justify-center w-40" data-id="' . (int)$row['id'] . '"><i class="fa-solid fa-file-pdf mr-2"></i><span>Invoice</span></a>';
         }
-        
+        $actions .= $download_peserta_btn;
+
         // Show Approve/Reject buttons only for pending invoices
         if ($flag_val === 0) {
             $actions .= '<button class="btn-approve px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm" data-id="' . htmlspecialchars($row['id']) . '"><i class="fa-solid fa-check mr-1"></i>Approve</button>';

@@ -21,14 +21,14 @@ if ($id <= 0) {
 // Validate required fields
 $errors = [];
 $invoice_no = isset($_POST['invoice_no']) ? trim($_POST['invoice_no']) : '';
-$jml_premi_krywn = isset($_POST['jml_premi_krywn']) ? (float)$_POST['jml_premi_krywn'] : 0;
+// $jml_premi_krywn = isset($_POST['jml_premi_krywn']) ? (float)$_POST['jml_premi_krywn'] : 0;
 $jml_peserta = isset($_POST['jml_peserta']) ? (int)$_POST['jml_peserta'] : 0;
 $jml_premi = isset($_POST['jml_premi']) ? (float)str_replace('.', '', $_POST['jml_premi']) : 0;
 $pic = isset($_POST['pic']) ? trim($_POST['pic']) : '';
 $tgl_invoice = isset($_POST['tgl_invoice']) ? trim($_POST['tgl_invoice']) : '';
 
 if (!$invoice_no) $errors[] = 'No. Invoice wajib diisi';
-if (!$jml_premi_krywn) $errors[] = 'Jumlah Premi Karyawan wajib diisi';
+// if (!$jml_premi_krywn) $errors[] = 'Jumlah Premi Karyawan wajib diisi';
 if (!$jml_peserta) $errors[] = 'Jumlah Peserta wajib diisi';
 if (!$jml_premi) $errors[] = 'Total Premi wajib diisi';
 
@@ -40,9 +40,9 @@ if (!empty($errors)) {
 }
 
 // Update invoice
+// jml_premi_krywn = " . $jml_premi_krywn . ",
 $updateSql = "UPDATE invoice_airnav SET 
     invoice_no = '" . mysqli_real_escape_string($conn, $invoice_no) . "',
-    jml_premi_krywn = " . $jml_premi_krywn . ",
     jml_premi_pt = 0,
     jumlah = " . $jml_peserta . ",
     total_premi = " . $jml_premi . ",
@@ -60,4 +60,3 @@ if (mysqli_query($conn, $updateSql)) {
 }
 
 mysqli_close($conn);
-?>

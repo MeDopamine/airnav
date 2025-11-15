@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_login();
-if (!is_admin()) {
+if (!is_admin_or_admintl()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'msg' => 'Akses ditolak']);
@@ -50,4 +50,3 @@ echo json_encode([
 ]);
 
 mysqli_close($conn);
-?>
