@@ -45,6 +45,21 @@ function formatJenisPremiDisplay($jenisValue)
     <link href="assets/css/select2.min.css" rel="stylesheet" />
     <!-- SweetAlert2 custom styles -->
     <link rel="stylesheet" href="assets/css/swal-custom.css">
+    <!-- Flatpickr Datepicker CSS - Lightweight and SweetAlert2 compatible -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Flatpickr monthSelect plugin CSS (for month/year only picker) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+    <!-- SweetAlert2 custom styles -->
+    <style>
+        /* Ensure Flatpickr datepicker appears above SweetAlert2 modal */
+        .flatpickr-calendar {
+            z-index: 2000 !important;
+        }
+
+        .flatpickr-calendar.open {
+            display: block !important;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100">
@@ -224,6 +239,11 @@ function formatJenisPremiDisplay($jenisValue)
     <!-- Page-specific helpers -->
     <script src="assets/js/helpers/peserta-helpers.js"></script>
     <script src="assets/js/data-peserta.js"></script>
+    <!-- Flatpickr Datepicker JS - Lightweight and SweetAlert2 compatible -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Flatpickr monthSelect plugin (enables month/year picker) -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <!-- <script src="assets/js/manajemen-invoice.js"></script> -->
 </body>
 
 </html>

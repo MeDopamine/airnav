@@ -21,7 +21,7 @@ if (!empty($periode)) {
     $where .= " AND periode = '$periode'";
 }
 
-$sql = "SELECT id, periode, jenis_premi, invoice_no, jml_premi_krywn, total_premi, jumlah, pic, created_at, flag, urlinvoice FROM invoice_airnav WHERE $where ORDER BY created_at DESC";
+$sql = "SELECT id, periode, jenis_premi, invoice_no, jml_premi_krywn, total_premi, jumlah, pic, created_at, flag, idbatch, urlinvoice FROM invoice_airnav WHERE $where ORDER BY created_at DESC";
 $res = mysqli_query($conn, $sql);
 
 if (!$res) {
@@ -52,6 +52,8 @@ if ($res) {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>';
         } elseif ($flag_val === 2) {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>';
+        } elseif ($flag_val === 3) {
+            $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-purple-100 text-purple-800">Revision</span>';
         } else {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>';
         }
@@ -76,8 +78,8 @@ if ($res) {
 
         // Show Approve/Reject buttons only for pending invoices
         if ($flag_val === 0) {
-            $actions .= '<button class="btn-approve px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm" data-id="' . htmlspecialchars($row['id']) . '"><i class="fa-solid fa-check mr-1"></i>Approve</button>';
-            $actions .= '<button class="btn-reject px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm" data-id="' . htmlspecialchars($row['id']) . '"><i class="fa-solid fa-times mr-1"></i>Reject</button>';
+            $actions .= '<button class="btn-approve px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm" data-idbatch="' . htmlspecialchars($row['idbatch']) . '" data-id="' . htmlspecialchars($row['id']) . '"><i class="fa-solid fa-check mr-1"></i>Approve</button>';
+            $actions .= '<button class="btn-reject px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm" data-idbatch="' . htmlspecialchars($row['idbatch']) . '" data-id="' . htmlspecialchars($row['id']) . '"><i class="fa-solid fa-times mr-1"></i>Reject</button>';
         }
         $actions .= '</div>';
 

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../auth.php';
 require_login();
 // only admin may fetch all peserta
-if (!is_admin()) {
+if (!is_admin_or_admintl()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'data' => [], 'msg' => 'Akses ditolak']);
@@ -18,7 +18,7 @@ if ($result) {
         $data[] = $row;
     }
     mysqli_free_result($result);
-    echo json_encode(['ok'=>true, 'data'=>$data]);
+    echo json_encode(['ok' => true, 'data' => $data]);
 } else {
-    echo json_encode(['ok'=>false, 'msg'=>'DB error']);
+    echo json_encode(['ok' => false, 'msg' => 'DB error']);
 }

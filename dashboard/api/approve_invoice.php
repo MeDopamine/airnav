@@ -5,7 +5,8 @@ ob_end_clean();
 
 require_login();
 // Hanya admin yang bisa approve invoice
-require_admin();
+// require_admin();
+require_admin_or_admintl();
 
 include __DIR__ . '/../../db/db.php';
 
@@ -13,6 +14,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Get POST data
 $invoice_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$idbatch = isset($_POST['idbatch']) ? $_POST['idbatch'] : '';
 $action = isset($_POST['action']) ? trim($_POST['action']) : ''; // 'approve' atau 'reject'
 
 if ($invoice_id <= 0) {
@@ -21,7 +23,7 @@ if ($invoice_id <= 0) {
     exit;
 }
 
-if (!in_array($action, ['approve', 'reject'])) {
+if (!in_array($action, ['approve', 'reject', 'revision'])) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'msg' => 'Action tidak valid']);
     exit;
@@ -45,13 +47,13 @@ $invoice = mysqli_fetch_assoc($check_result);
 mysqli_free_result($check_result);
 
 // Check if invoice is in pending state
-if ((int)$invoice['flag'] !== 0) {
+if ((int)$invoice['flag'] !== 0 && (int)$invoice['flag'] !== 1) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'msg' => 'Invoice tidak dapat diubah karena sudah diproses atau dalam status lain']);
     exit;
 }
 
-$new_flag = ($action === 'approve') ? 1 : 2;
+$new_flag = ($action === 'approve') ? 1 : ($action === 'reject' ? 2 : 3);
 
 // === JIKA REJECT: update data_peserta ===
 if ($action === 'reject') {
@@ -59,7 +61,45 @@ if ($action === 'reject') {
         UPDATE data_peserta 
         SET status_data = $new_flag 
         WHERE periode = '{$invoice['periode']}' 
-          AND jenis_premi = '{$invoice['jenis_premi']}'
+        AND jenis_premi = '{$invoice['jenis_premi']}' 
+        AND idbatch = '$idbatch'
+    ";
+
+    if (!mysqli_query($conn, $sql_peserta)) {
+        http_response_code(500);
+        echo json_encode([
+            'ok' => false,
+            'msg' => 'Gagal mengupdate data peserta: ' . mysqli_error($conn)
+        ]);
+        exit;
+    }
+}
+
+if ($action === 'approve') {
+    $sql_peserta = "
+        UPDATE data_peserta 
+        SET status_data = 3 
+        WHERE periode = '{$invoice['periode']}' 
+        AND jenis_premi = '{$invoice['jenis_premi']}' 
+        AND idbatch = '$idbatch'
+    ";
+
+    if (!mysqli_query($conn, $sql_peserta)) {
+        http_response_code(500);
+        echo json_encode([
+            'ok' => false,
+            'msg' => 'Gagal mengupdate data peserta: ' . mysqli_error($conn)
+        ]);
+        exit;
+    }
+}
+if ($action === 'revision') {
+    $sql_peserta = "
+        UPDATE data_peserta 
+        SET status_data = 4 
+        WHERE periode = '{$invoice['periode']}' 
+        AND jenis_premi = '{$invoice['jenis_premi']}' 
+        AND idbatch = '$idbatch'
     ";
 
     if (!mysqli_query($conn, $sql_peserta)) {
@@ -87,12 +127,11 @@ if (!mysqli_query($conn, $sql_invoice)) {
 // Jika semua berhasil
 echo json_encode([
     'ok' => true,
-    'msg' => ($action === 'approve') 
-        ? 'Invoice berhasil di-approve' 
+    'msg' => ($action === 'approve')
+        ? 'Invoice berhasil di-approve'
         : 'Invoice berhasil di-reject'
 ]);
 exit;
 
 // Update status data_peserta if invoice is approved
 mysqli_close($conn);
-?>

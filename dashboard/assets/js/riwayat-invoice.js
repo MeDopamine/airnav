@@ -101,6 +101,8 @@ $(document).ready(function () {
   $(document).on("click", ".btn-approve", function (e) {
     e.preventDefault();
     var invoiceId = $(this).data("id");
+    var idbatch = $(this).data("idbatch");
+    console.log($(this).data("idbatch"));
 
     Swal.fire({
       title: "Approve Invoice?",
@@ -117,6 +119,7 @@ $(document).ready(function () {
           dataType: "json",
           data: {
             id: invoiceId,
+            idbatch: idbatch,
             action: "approve",
           },
           success: function (resp) {
@@ -150,6 +153,7 @@ $(document).ready(function () {
   $(document).on("click", ".btn-reject", function (e) {
     e.preventDefault();
     var invoiceId = $(this).data("id");
+    var idbatch = $(this).data("idbatch");
 
     Swal.fire({
       title: "Reject Invoice?",
@@ -166,6 +170,7 @@ $(document).ready(function () {
           dataType: "json",
           data: {
             id: invoiceId,
+            idbatch: idbatch,
             action: "reject",
           },
           success: function (resp) {
