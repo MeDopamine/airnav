@@ -134,7 +134,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
-$headers = ['NO', 'Nama', 'TMT Member', 'NIP', 'NIK', 'Periode Invoice', 'Jenis Invoice', 'Gapok', 'Premi Karyawan', 'Premi Perushaan', 'Total Premi', 'PIC', 'Status', 'Approval', 'Created At'];
+$headers = ['NO', 'Nama', 'TMT Member', 'NIP', 'NIK', 'Periode Invoice', 'Jenis Invoice', 'Gapok', 'Premi Karyawan', 'Premi Perusahaan', 'Total Premi', 'PIC', 'Status', 'Approval', 'Created At'];
 // write headers
 $col = 'A';
 foreach ($headers as $h) {

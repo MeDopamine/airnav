@@ -21,11 +21,15 @@ $jenis = isset($_GET['jenis']) ? mysqli_real_escape_string(
     $conn,
     $_GET['jenis']
 ) : '';
+$idbatch = isset($_GET['idbatch']) ? mysqli_real_escape_string(
+    $conn,
+    $_GET['idbatch']
+) : '';
 //1.InisialisasidatasebagaiObjekbukanArray
 // $data = [];
 $data = new stdClass(); // Ini membuat $data menjadi Object {}
 if ($periode && $jenis !== '') {
-    $sql = "SELECT id, nip, gapok, nama, tmt_asuransi, nik, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, pic, `status`, status_data, created_at FROM data_peserta WHERE periode='$periode' AND jenis_premi='$jenis' ORDER BY id DESC";
+    $sql = "SELECT id, nip, gapok, nama, tmt_asuransi, nik, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, pic, `status`, status_data, created_at FROM data_peserta WHERE periode='$periode' AND jenis_premi='$jenis' AND idbatch='$idbatch' ORDER BY id DESC";
     $res = mysqli_query(
         $conn,
         $sql

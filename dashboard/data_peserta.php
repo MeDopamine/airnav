@@ -1,4 +1,6 @@
 <?php
+
+
 // Require authentication - admin dan admintl bisa akses
 include_once __DIR__ . '/../auth.php';
 require_login();
@@ -107,108 +109,6 @@ function formatJenisPremiDisplay($jenisValue)
                                 <span class="text-blue-700 font-semibold">Memuat data...</span>
                             </div>
                         </div>
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                            <div class="flex items-center space-x-3 mb-3 md:mb-0">
-                                <label for="periode" class="text-sm mr-3 font-medium text-gray-700">Periode:</label>
-                                <select id="periode" name="periode" class="form-select px-3 py-1 border-2 rounded-full bg-white text-sm" style="width: 160px;">
-                                    <?php
-                                    // populate periode options from distinct values in DB
-                                    $pRes = mysqli_query($conn, "SELECT DISTINCT periode FROM data_peserta ORDER BY periode DESC");
-                                    if ($pRes) {
-                                        echo '<option value=""> Semua Periode </option>';
-                                        while ($pRow = mysqli_fetch_assoc($pRes)) {
-                                            $val = htmlspecialchars($pRow['periode']);
-                                            echo "<option value=\"$val\">$val</option>";
-                                        }
-                                        mysqli_free_result($pRes);
-                                    } else {
-                                        echo '<option value="">Tidak ada periode</option>';
-                                    }
-                                    ?>
-                                </select>
-                                </form>
-                            </div>
-                        </div>
-
-                        <table id="data-peserta-table" class="w-full display stripe hover" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th class="text-center align-middle">No</th>
-                                    <th class="text-center align-middle">Nama</th>
-                                    <th class="text-center align-middle">NIP</th>
-                                    <th class="text-center align-middle">NIK</th>
-                                    <th class="text-center align-middle">Periode</th>
-                                    <th class="text-center align-middle">Jenis Invoice</th>
-                                    <th class="text-center align-middle">Jumlah Premi Karyawan</th>
-                                    <th class="text-center align-middle">Jumlah Premi PT</th>
-                                    <th class="text-center align-middle">Total Premi</th>
-                                    <th class="text-center align-middle">Status</th>
-                                    <th class="text-center align-middle">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                // fetch rows from data_peserta (urutkan berdasarkan periode terbaru dulu, lalu id)
-                                // Columns adjusted to match table header: Periode, Jenis Premi, Jumlah Premi Karyawan, Jumlah Premi PT, Total Premi, Status
-                                $sql = "SELECT * FROM data_peserta ORDER BY periode DESC, id DESC";
-                                $res = mysqli_query($conn, $sql);
-                                $jenis_premi_map = [
-                                    1 => 'JHT Regular',
-                                    2 => 'JHT Topup',
-                                    3 => 'PKP Regular',
-                                ];
-                                if ($res) {
-                                    while ($row = mysqli_fetch_assoc($res)) {
-                                        echo '<tr>';
-                                        // Kolom nomor urut, diisi oleh DataTables (td kosong, nanti diisi JS)
-                                        echo '<td class="text-center"></td>';
-                                        // Periode (disimpan sebagai YYYYMM) - tampilkan apa adanya; frontend JS will also provide friendly format where used
-                                        echo '<td class="text-center">' . htmlspecialchars($row['nama']) . '</td>';
-                                        echo '<td class="text-center">' . htmlspecialchars($row['nip']) . '</td>';
-                                        echo '<td class="text-center">' . htmlspecialchars($row['nik']) . '</td>';
-                                        echo '<td class="text-center">' . htmlspecialchars($row['periode']) . '</td>';
-                                        // Jenis Premi
-                                        $jenis_premi_value = $row['jenis_premi'];
-                                        $jenis_premi_display = $jenis_premi_map[$jenis_premi_value] ?? htmlspecialchars($jenis_premi_value);
-                                        echo '<td class="text-center">' . $jenis_premi_display . '</td>';
-                                        // echo '<td class="text-center">' . htmlspecialchars($row['jenis_premi']) . '</td>';
-                                        // Jumlah Premi Karyawan
-                                        $kry = is_numeric($row['jml_premi_krywn']) ? 'Rp ' . number_format((float)$row['jml_premi_krywn'], 2, ',', '.') : htmlspecialchars($row['jml_premi_krywn']);
-                                        echo '<td class="text-center">' . $kry . '</td>';
-                                        // Jumlah Premi PT
-                                        $pt = is_numeric($row['jml_premi_pt']) ? 'Rp ' . number_format((float)$row['jml_premi_pt'], 2, ',', '.') : htmlspecialchars($row['jml_premi_pt']);
-                                        echo '<td class="text-center">' . $pt . '</td>';
-                                        // Total Premi
-                                        $total = is_numeric($row['total_premi']) ? 'Rp ' . number_format((float)$row['total_premi'], 2, ',', '.') : htmlspecialchars($row['total_premi']);
-                                        echo '<td class="text-center">' . $total . '</td>';
-                                        // approval button (status_data) - hanya AdminTL yang bisa click
-                                        $approved = !empty($row['status_data']) ? 1 : 0;
-                                        $btnClass = $approved
-                                            ? 'px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-green-100 text-green-800'
-                                            : 'px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800';
-                                        $btnLabel = $approved ? 'Approved' : 'Not Approved';
-                                        $id = (int)$row['id'];
-                                        $isAdminTL = is_admintl();
-                                        $btnAttrs = $isAdminTL ? 'class="approve-btn cursor-pointer inline-flex items-center justify-center w-full h-full ' . $btnClass . '" style="min-width:110px;display:flex;align-items:center;justify-content:center;" data-id="' . $id . '" data-status="' . $approved . '"' : 'class="inline-flex items-center justify-center w-full h-full ' . $btnClass . '" style="min-width:110px;display:flex;align-items:center;justify-content:center;cursor:not-allowed;"';
-                                        echo '<td class="text-center align-middle"><span ' . $btnAttrs . '>' . $btnLabel . '</span></td>';
-                                        // Kolom aksi: tombol edit & hapus (hanya untuk admin)
-                                        if (is_admin()) {
-                                            echo '<td class="text-center">
-                                                <button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:2px;" title="Edit" data-id="' . $id . '"><i class="fa-solid fa-pen-to-square"></i></button>
-                                                <button class="btn-delete-data transition" style="margin-left:2px;" title="Hapus" data-id="' . $id . '"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>
-                                            </td>';
-                                        } else {
-                                            echo '<td class="text-center text-gray-400"><i class="fa-solid fa-lock" title="Tidak ada akses"></i></td>';
-                                        }
-                                        echo '</tr>' . PHP_EOL;
-                                    }
-                                    mysqli_free_result($res);
-                                } else {
-                                    echo '<tr><td colspan="8">Tidak ada data atau terjadi kesalahan: ' . htmlspecialchars(mysqli_error($conn)) . '</td></tr>';
-                                }
-                                ?>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </main>

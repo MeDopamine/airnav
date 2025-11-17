@@ -47,13 +47,13 @@ $invoice = mysqli_fetch_assoc($check_result);
 mysqli_free_result($check_result);
 
 // Check if invoice is in pending state
-if ((int)$invoice['flag'] !== 0 && (int)$invoice['flag'] !== 1) {
+if ((int)$invoice['flag'] !== 0 && (int)$invoice['flag'] !== 3) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'msg' => 'Invoice tidak dapat diubah karena sudah diproses atau dalam status lain']);
     exit;
 }
 
-$new_flag = ($action === 'approve') ? 1 : ($action === 'reject' ? 2 : 3);
+$new_flag = ($action === 'approve') ? 3 : ($action === 'reject' ? 2 : ($action === 'revision' ? 4 : 1));
 
 // === JIKA REJECT: update data_peserta ===
 if ($action === 'reject') {
@@ -78,7 +78,7 @@ if ($action === 'reject') {
 if ($action === 'approve') {
     $sql_peserta = "
         UPDATE data_peserta 
-        SET status_data = 3 
+        SET status_data = $new_flag
         WHERE periode = '{$invoice['periode']}' 
         AND jenis_premi = '{$invoice['jenis_premi']}' 
         AND idbatch = '$idbatch'
@@ -96,7 +96,7 @@ if ($action === 'approve') {
 if ($action === 'revision') {
     $sql_peserta = "
         UPDATE data_peserta 
-        SET status_data = 4 
+        SET status_data = $new_flag
         WHERE periode = '{$invoice['periode']}' 
         AND jenis_premi = '{$invoice['jenis_premi']}' 
         AND idbatch = '$idbatch'

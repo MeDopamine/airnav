@@ -109,7 +109,7 @@ $sql = "SELECT periode,
                     ELSE 0 END AS approval_status
         FROM data_peserta
         where `status`= 1
-        GROUP BY periode, jenis_premi, status_data
+        GROUP BY periode, jenis_premi, status_data, idbatch
         ORDER BY periode DESC, jenis_premi ASC, status_data ASC";
 
 $res = mysqli_query($conn, $sql);

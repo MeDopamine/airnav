@@ -49,6 +49,8 @@ if ($res) {
         } elseif ($flag_val === 2) {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>';
         } elseif ($flag_val === 3) {
+            $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-blue-100 text-blue-800">Done</span>';
+        } elseif ($flag_val === 4) {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-purple-100 text-purple-800">Revision</span>';
         } else {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>';
@@ -86,7 +88,7 @@ if ($res) {
         if ($flag_val === 0) {
             $edit_btn = '<button class="btn-edit text-white bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-md inline-flex items-center justify-center gap-2" data-id="' . (int)$row['id'] . '" data-invoice="' . htmlspecialchars($no_invoice) . '"><i class="fa-solid fa-pencil"></i><span>Edit</span></button>';
         }
-        if ($flag_val === 1) {
+        if ($flag_val === 3) {
             $revision_btn = '<button class="btn-revision px-4 py-2 w-40 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm" data-idbatch="' . htmlspecialchars($row['idbatch']) . '" data-id="' . htmlspecialchars($row['id']) . '"><i class="fa-solid fa-pencil mr-1"></i>Revision</button>';
         }
 
