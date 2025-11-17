@@ -53,6 +53,8 @@ if ($res) {
         } elseif ($flag_val === 2) {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>';
         } elseif ($flag_val === 3) {
+            $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-blue-100 text-blue-800">Done</span>';
+        } elseif ($flag_val === 4) {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-purple-100 text-purple-800">Revision</span>';
         } else {
             $status_html = '<span class="px-3 py-1 inline-flex text-xs text-center leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>';

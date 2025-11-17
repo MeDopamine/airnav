@@ -216,99 +216,220 @@ function loadPeriodeTable() {
 // resetApproveAllButton, showErrorNotification, formatPeriodeDisplay, formatPeriodeReadable)
 // are provided by `assets/js/helpers/peserta-helpers.js` and exposed on window.
 
-function buildMainTableFromData(dataArray) {
-  // Avoid auto-initializing DataTable here. If the DataTable has not been
-  // initialized yet (it is initialized in $(document).ready below),
-  // populate the <tbody> directly and return. This prevents a race
-  // where calling DataTable() early creates a second instance with
-  // different options, causing inconsistent rendering.
-  var table;
-  var usingApi = false;
-  if ($.fn.DataTable && $.fn.DataTable.isDataTable("#data-peserta-table")) {
-    table = $("#data-peserta-table").DataTable();
-    table.clear();
-    usingApi = true;
-  } else {
-    // fallback: build tbody HTML so the later DataTable init will pick it up
-    var $tbody = $("#data-peserta-table tbody");
-    $tbody.empty();
-  }
-  // ensure periode set
-  if (!window._periodeSet) window._periodeSet = {};
-  dataArray.forEach(function (row) {
-    // Expected fields from API: id, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, status_data
-    var displayPeriode = formatPeriodeDisplay(row.periode);
-    var jenisPremi =
-      typeof row.jenis_premi !== "undefined" ? String(row.jenis_premi) : "";
-    var jmlKry =
-      typeof row.jml_premi_krywn !== "undefined"
-        ? formatPremi(row.jml_premi_krywn)
-        : "";
-    var jmlPt =
-      typeof row.jml_premi_pt !== "undefined"
-        ? formatPremi(row.jml_premi_pt)
-        : "";
-    var totalPremiFormatted = formatPremi(row.total_premi);
-    var status = typeof row.status !== "undefined" ? row.status : "";
-    var approved = row.status_data == 1 ? 1 : 0;
-    var approveBtn = makeApproveBadge(approved, row.id);
-    var actionBtns =
-      '<button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:4px;" title="Edit" data-id="' +
-      row.id +
-      '"><i class="fa-solid fa-pen-to-square"></i></button>' +
-      '<button class="btn-delete-data transition" style="margin-left:4px;" title="Hapus" data-id="' +
-      row.id +
-      '"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>';
-    var rowHtml =
-      "<tr>" +
-      '<td class="text-center"></td>' +
-      '<td class="text-center">' +
-      displayPeriode +
-      "</td>" +
-      '<td class="text-center">' +
-      jenisPremi +
-      "</td>" +
-      '<td class="text-center">' +
-      jmlKry +
-      "</td>" +
-      '<td class="text-center">' +
-      jmlPt +
-      "</td>" +
-      '<td class="text-center">' +
-      totalPremiFormatted +
-      "</td>" +
-      '<td class="text-center">' +
-      status +
-      "</td>" +
-      '<td class="text-center">' +
-      approveBtn +
-      "</td>" +
-      '<td class="text-center">' +
-      actionBtns +
-      "</td>" +
-      "</tr>";
-    if (usingApi) {
-      table.row.add([
-        "",
-        displayPeriode,
-        jenisPremi,
-        jmlKry,
-        jmlPt,
-        totalPremiFormatted,
-        status,
-        approveBtn,
-        actionBtns,
-      ]);
-    } else {
-      $tbody.append(rowHtml);
-    }
-    if (row.periode) window._periodeSet[row.periode] = true;
-  });
-  // default order by periode (column 1 desc)
-  table.order([1, "desc"]);
-  table.rows().invalidate().draw(false);
-  rebuildPeriodeSelectFromSet();
-}
+// function buildMainTableFromData(dataArray) {
+//   // Avoid auto-initializing DataTable here. If the DataTable has not been
+//   // initialized yet (it is initialized in $(document).ready below),
+//   // populate the <tbody> directly and return. This prevents a race
+//   // where calling DataTable() early creates a second instance with
+//   // different options, causing inconsistent rendering.
+//   var table;
+//   var usingApi = false;
+//   if ($.fn.DataTable && $.fn.DataTable.isDataTable("#data-peserta-table")) {
+//     table = $("#data-peserta-table").DataTable();
+//     table.clear();
+//     usingApi = true;
+//   } else {
+//     // fallback: build tbody HTML so the later DataTable init will pick it up
+//     var $tbody = $("#data-peserta-table tbody");
+//     $tbody.empty();
+//   }
+//   // ensure periode set
+//   if (!window._periodeSet) window._periodeSet = {};
+//   dataArray.forEach(function (row) {
+//     // Expected fields from API: id, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, status_data
+//     var displayPeriode = formatPeriodeDisplay(row.periode);
+//     var jenisPremi =
+//       typeof row.jenis_premi !== "undefined" ? String(row.jenis_premi) : "";
+//     var jmlKry =
+//       typeof row.jml_premi_krywn !== "undefined"
+//         ? formatPremi(row.jml_premi_krywn)
+//         : "";
+//     var jmlPt =
+//       typeof row.jml_premi_pt !== "undefined"
+//         ? formatPremi(row.jml_premi_pt)
+//         : "";
+//     var totalPremiFormatted = formatPremi(row.total_premi);
+//     var status = typeof row.status !== "undefined" ? row.status : "";
+//     var approved = row.status_data == 1 ? 1 : 0;
+//     var approveBtn = makeApproveBadge(approved, row.id);
+//     var actionBtns =
+//       '<button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:4px;" title="Edit" data-id="' +
+//       row.id +
+//       '"><i class="fa-solid fa-pen-to-square"></i></button>' +
+//       '<button class="btn-delete-data transition" style="margin-left:4px;" title="Hapus" data-id="' +
+//       row.id +
+//       '"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>';
+//     var rowHtml =
+//       "<tr>" +
+//       '<td class="text-center"></td>' +
+//       '<td class="text-center">' +
+//       displayPeriode +
+//       "</td>" +
+//       '<td class="text-center">' +
+//       jenisPremi +
+//       "</td>" +
+//       '<td class="text-center">' +
+//       jmlKry +
+//       "</td>" +
+//       '<td class="text-center">' +
+//       jmlPt +
+//       "</td>" +
+//       '<td class="text-center">' +
+//       totalPremiFormatted +
+//       "</td>" +
+//       '<td class="text-center">' +
+//       status +
+//       "</td>" +
+//       '<td class="text-center">' +
+//       approveBtn +
+//       "</td>" +
+//       '<td class="text-center">' +
+//       actionBtns +
+//       "</td>" +
+//       "</tr>";
+//     if (usingApi) {
+//       table.row.add([
+//         "",
+//         displayPeriode,
+//         jenisPremi,
+//         jmlKry,
+//         jmlPt,
+//         totalPremiFormatted,
+//         status,
+//         approveBtn,
+//         actionBtns,
+//       ]);
+//     } else {
+//       $tbody.append(rowHtml);
+//     }
+//     if (row.periode) window._periodeSet[row.periode] = true;
+//   });
+//   // default order by periode (column 1 desc)
+//   table.order([1, "desc"]);
+//   table.rows().invalidate().draw(false);
+//   rebuildPeriodeSelectFromSet();
+// }
+
+// GANTI SELURUH FUNGSI ANDA DENGAN INI:
+// function buildMainTableFromData(dataArray) {
+//   var table;
+//   var usingApi = false;
+//   if ($.fn.DataTable && $.fn.DataTable.isDataTable("#data-peserta-table")) {
+//     table = $("#data-peserta-table").DataTable();
+//     table.clear();
+//     usingApi = true;
+//   } else {
+//     var $tbody = $("#data-peserta-table tbody");
+//     $tbody.empty();
+//   }
+
+//   if (!window._periodeSet) window._periodeSet = {};
+
+//   dataArray.forEach(function (row) {
+//     // 1. Ambil SEMUA data yang diperlukan dari 'row' (termasuk yg hilang)
+//     var nama = row.nama || "";
+//     var nip = row.nip || "";
+//     var nik = row.nik || "";
+//     var displayPeriode = formatPeriodeDisplay(row.periode);
+
+//     // Gunakan helper Anda untuk memformat jenis premi
+//     var jenisPremi = formatJenisPremi(row.jenis_premi);
+
+//     var jmlKry =
+//       typeof row.jml_premi_krywn !== "undefined"
+//         ? formatPremi(row.jml_premi_krywn)
+//         : "";
+//     var jmlPt =
+//       typeof row.jml_premi_pt !== "undefined"
+//         ? formatPremi(row.jml_premi_pt)
+//         : "";
+//     var totalPremiFormatted = formatPremi(row.total_premi);
+
+//     // Ini adalah kolom STATUS (Approved/Not Approved)
+//     var approved = row.status;
+//     var approveBtn = makeApproveBadge(approved, row.id); // Asumsi helper ini ada dari peserta-helpers.js
+
+//     // Ini adalah kolom AKSI (Edit/Delete)
+//     var actionBtns =
+//       '<td class="text-center text-gray-400"><i class="fa-solid fa-lock" title="Tidak ada akses"></i></td>';
+//     // var actionBtns =
+//     //   '<button class="btn-edit-data text-blue-600 hover:text-blue-800" style="margin-right:4px;" title="Edit" data-id="' +
+//     //   row.id +
+//     //   '"><i class="fa-solid fa-pen-to-square"></i></button>' +
+//     //   '<button class="btn-delete-data transition" style="margin-left:4px;" title="Hapus" data-id="' +
+//     //   row.id +
+//     //   '"><i class="fa-solid fa-trash" style="color:#dc2626;"></i></button>';
+
+//     // 2. Buat array dengan 11 kolom, SESUAI URUTAN <thead>
+//     var rowData = [
+//       "", // 0: No (Akan diisi oleh DataTables render)
+//       nama, // 1: Nama
+//       nip, // 2: NIP
+//       nik, // 3: NIK
+//       displayPeriode, // 4: Periode
+//       jenisPremi, // 5: Jenis Invoice
+//       jmlKry, // 6: Jumlah Premi Karyawan
+//       jmlPt, // 7: Jumlah Premi PT
+//       totalPremiFormatted, // 8: Total Premi
+//       approveBtn, // 9: Status (Badge)
+//       actionBtns, // 10: Aksi
+//     ];
+
+//     if (usingApi) {
+//       // 3. Tambahkan data baris yang sudah benar
+//       table.row.add(rowData);
+//     } else {
+//       // 4. Perbarui juga fallback HTML (jika tabel belum di-init)
+//       var rowHtml =
+//         "<tr>" +
+//         '<td class="text-center"></td>' + // 0
+//         '<td class="text-center">' +
+//         nama +
+//         "</td>" + // 1
+//         '<td class="text-center">' +
+//         nip +
+//         "</td>" + // 2
+//         '<td class="text-center">' +
+//         nik +
+//         "</td>" + // 3
+//         '<td class="text-center">' +
+//         displayPeriode +
+//         "</td>" + // 4
+//         '<td class="text-center">' +
+//         jenisPremi +
+//         "</td>" + // 5
+//         '<td class="text-center">' +
+//         jmlKry +
+//         "</td>" + // 6
+//         '<td class="text-center">' +
+//         jmlPt +
+//         "</td>" + // 7
+//         '<td class="text-center">' +
+//         totalPremiFormatted +
+//         "</td>" + // 8
+//         '<td class="text-center">' +
+//         approveBtn +
+//         "</td>" + // 9
+//         '<td class="text-center">' +
+//         actionBtns +
+//         "</td>" + // 10
+//         "</tr>";
+//       $tbody.append(rowHtml);
+//     }
+
+//     if (row.periode) window._periodeSet[row.periode] = true;
+//   });
+
+//   // default order by periode (column 1 desc)
+//   // PERHATIAN: Kolom 'Periode' Anda sekarang ada di index 4
+//   // Kolom 'Nama' (index 1) mungkin lebih baik untuk default sort
+//   table.order([1, "asc"]); // Sort by Nama (index 1) ascending
+//   // atau jika tetap ingin by periode:
+//   // table.order([4, "desc"]); // Sort by Periode (index 4) descending
+
+//   table.rows().invalidate().draw(false);
+//   rebuildPeriodeSelectFromSet();
+// }
 
 loadPeriodeTable();
 
@@ -326,6 +447,14 @@ $(document).on("click", ".btn-lihat-peserta", function () {
   var params = { periode: periode };
   if (jenis && jenis !== "" && jenis !== null && jenis !== "undefined") {
     params.jenis = jenis;
+  }
+  if (
+    idbatch &&
+    idbatch !== "" &&
+    idbatch !== null &&
+    idbatch !== "undefined"
+  ) {
+    params.idbatch = idbatch;
   }
 
   $.get("api/get_peserta_by_periode.php", params, function (resp) {
@@ -649,28 +778,29 @@ $(document).on("click", ".btn-lihat-peserta", function () {
                                   if (resp && resp.ok) {
                                     Swal.close();
                                     // Refresh tabel utama peserta (AJAX) using centralized helper
-                                    if (
-                                      $("#data-peserta-table").length &&
-                                      $.fn.DataTable.isDataTable(
-                                        "#data-peserta-table"
-                                      )
-                                    ) {
-                                      showTableLoading && showTableLoading();
-                                      $.get(
-                                        "api/get_peserta.php",
-                                        function (resp2) {
-                                          if (
-                                            resp2 &&
-                                            resp2.ok &&
-                                            Array.isArray(resp2.data)
-                                          ) {
-                                            buildMainTableFromData(resp2.data);
-                                          }
-                                        }
-                                      ).always(function () {
-                                        hideTableLoading && hideTableLoading();
-                                      });
-                                    }
+                                    // if (
+                                    //   $("#data-peserta-table").length &&
+                                    //   $.fn.DataTable.isDataTable(
+                                    //     "#data-peserta-table"
+                                    //   )
+                                    // ) {
+                                    //   showTableLoading && showTableLoading();
+                                    //   $.get(
+                                    //     "api/get_peserta.php?_t=" +
+                                    //       new Date().getTime(),
+                                    //     function (resp2) {
+                                    //       if (
+                                    //         resp2 &&
+                                    //         resp2.ok &&
+                                    //         Array.isArray(resp2.data)
+                                    //       ) {
+                                    //         buildMainTableFromData(resp2.data);
+                                    //       }
+                                    //     }
+                                    //   ).always(function () {
+                                    //     hideTableLoading && hideTableLoading();
+                                    //   });
+                                    // }
                                     // Refresh periode table to update approval status
                                     if (
                                       typeof loadPeriodeTable === "function"
@@ -1047,6 +1177,20 @@ $(document).ready(function () {
     ],
   });
 
+  // Filter DataTable berdasarkan periode
+  $("#periode").on("change", function () {
+    var val = $(this).val();
+    // Kolom Periode ada di index 1 (setelah No)
+    if (val) {
+      table
+        .column(1)
+        .search("^" + val + "$", true, false)
+        .draw();
+    } else {
+      table.column(1).search("", true, false).draw();
+    }
+  });
+
   // Inisialisasi DataTable untuk Registrasi Peserta jika ada
   if ($("#registrasi-peserta-table").length) {
     $("#registrasi-peserta-table").DataTable({
@@ -1133,71 +1277,78 @@ $(document).ready(function () {
               title: "Semua registrasi yang belum diverifikasi telah disetujui",
             });
             // delegate click to handle dynamic table content with confirmation
-            $(document).on("click", ".approve-btn", function (e) {
-              e.preventDefault();
-              var btn = $(this);
-              var id = btn.data("id");
-              var status = parseInt(btn.data("status")) ? 1 : 0;
-              var newStatus = status ? 0 : 1;
+            // $(document).on("click", ".approve-btn", function (e) {
+            //   e.preventDefault();
+            //   var btn = $(this);
+            //   var id = btn.data("id");
+            //   var status = parseInt(btn.data("status")) ? 1 : 0;
+            //   var newStatus = status ? 0 : 1;
 
-              var confirmText =
-                newStatus === 1
-                  ? "Setujui peserta ini?"
-                  : "Batalkan persetujuan peserta ini?";
+            //   var confirmText =
+            //     newStatus === 1
+            //       ? "Setujui peserta ini?"
+            //       : "Batalkan persetujuan peserta ini?";
 
-              Swal.fire({
-                title: confirmText,
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Ya",
-                cancelButtonText: "Batal",
-              }).then(function (result) {
-                if (result.isConfirmed) {
-                  btn.prop("disabled", true).text("Diproses...");
+            //   Swal.fire({
+            //     title: confirmText,
+            //     icon: "question",
+            //     showCancelButton: true,
+            //     confirmButtonText: "Ya",
+            //     cancelButtonText: "Batal",
+            //   }).then(function (result) {
+            //     if (result.isConfirmed) {
+            //       btn.prop("disabled", true).text("Diproses...");
 
-                  $.ajax({
-                    url: "api/update_status_peserta.php",
-                    type: "POST",
-                    dataType: "json",
-                    data: { id: id, status: newStatus },
-                    success: function (resp) {
-                      if (resp && resp.ok) {
-                        // Otomatis refresh tabel AJAX agar data dan status langsung update
-                        showTableLoading();
-                        $.get("api/get_peserta.php", function (resp2) {
-                          if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
-                            buildMainTableFromData(resp2.data);
-                          }
-                        }).always(function () {
-                          hideTableLoading();
-                        });
-                        Toast.fire({
-                          icon: "success",
-                          title:
-                            newStatus === 1
-                              ? "Peserta disetujui"
-                              : "Persetujuan dibatalkan",
-                        });
-                      } else {
-                        Toast.fire({
-                          icon: "error",
-                          title: "Gagal menyimpan status",
-                        });
-                      }
-                    },
-                    error: function (xhr) {
-                      Toast.fire({
-                        icon: "error",
-                        title: "Terjadi kesalahan saat menyimpan",
-                      });
-                    },
-                    complete: function () {
-                      btn.prop("disabled", false);
-                    },
-                  });
-                }
-              });
-            });
+            //       $.ajax({
+            //         url: "api/update_status_peserta.php",
+            //         type: "POST",
+            //         dataType: "json",
+            //         data: { id: id, status: newStatus },
+            //         success: function (resp) {
+            //           if (resp && resp.ok) {
+            //             // Otomatis refresh tabel AJAX agar data dan status langsung update
+            //             showTableLoading();
+            //             $.get(
+            //               "api/get_peserta.php?_t=" + new Date().getTime(),
+            //               function (resp2) {
+            //                 if (
+            //                   resp2 &&
+            //                   resp2.ok &&
+            //                   Array.isArray(resp2.data)
+            //                 ) {
+            //                   buildMainTableFromData(resp2.data);
+            //                 }
+            //               }
+            //             ).always(function () {
+            //               hideTableLoading();
+            //             });
+            //             Toast.fire({
+            //               icon: "success",
+            //               title:
+            //                 newStatus === 1
+            //                   ? "Peserta disetujui"
+            //                   : "Persetujuan dibatalkan",
+            //             });
+            //           } else {
+            //             Toast.fire({
+            //               icon: "error",
+            //               title: "Gagal menyimpan status",
+            //             });
+            //           }
+            //         },
+            //         error: function (xhr) {
+            //           Toast.fire({
+            //             icon: "error",
+            //             title: "Terjadi kesalahan saat menyimpan",
+            //           });
+            //         },
+            //         complete: function () {
+            //           btn.prop("disabled", false);
+            //         },
+            //       });
+            //     }
+            //   });
+            // });
             try {
               var userVerify =
                 resp.audit && resp.audit.user_verify
@@ -1238,19 +1389,22 @@ $(document).ready(function () {
                 }
               });
               // refresh main peserta table
-              if (
-                $("#data-peserta-table").length &&
-                $.fn.DataTable.isDataTable("#data-peserta-table")
-              ) {
-                showTableLoading();
-                $.get("api/get_peserta.php", function (resp2) {
-                  if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
-                    buildMainTableFromData(resp2.data);
-                  }
-                }).always(function () {
-                  hideTableLoading();
-                });
-              }
+              // if (
+              //   $("#data-peserta-table").length &&
+              //   $.fn.DataTable.isDataTable("#data-peserta-table")
+              // ) {
+              //   showTableLoading();
+              //   $.get(
+              //     "api/get_peserta.php?_t=" + new Date().getTime(),
+              //     function (resp2) {
+              //       if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
+              //         buildMainTableFromData(resp2.data);
+              //       }
+              //     }
+              //   ).always(function () {
+              //     hideTableLoading();
+              //   });
+              // }
             } catch (e) {
               console.warn(
                 "Could not update registrasi table after approve all",
@@ -1338,23 +1492,26 @@ $(document).ready(function () {
             }
 
             // Refresh main data_peserta table via AJAX
-            try {
-              if (
-                $("#data-peserta-table").length &&
-                $.fn.DataTable.isDataTable("#data-peserta-table")
-              ) {
-                showTableLoading();
-                $.get("api/get_peserta.php", function (resp2) {
-                  if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
-                    buildMainTableFromData(resp2.data);
-                  }
-                }).always(function () {
-                  hideTableLoading();
-                });
-              }
-            } catch (e) {
-              console.warn("Could not refresh main peserta table", e);
-            }
+            // try {
+            //   if (
+            //     $("#data-peserta-table").length &&
+            //     $.fn.DataTable.isDataTable("#data-peserta-table")
+            //   ) {
+            //     showTableLoading();
+            //     $.get(
+            //       "api/get_peserta.php?_t=" + new Date().getTime(),
+            //       function (resp2) {
+            //         if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
+            //           buildMainTableFromData(resp2.data);
+            //         }
+            //       }
+            //     ).always(function () {
+            //       hideTableLoading();
+            //     });
+            //   }
+            // } catch (e) {
+            //   console.warn("Could not refresh main peserta table", e);
+            // }
 
             // Refresh periode table (list of periods)
             try {
@@ -1373,20 +1530,6 @@ $(document).ready(function () {
           btn.prop("disabled", false).text("Approve");
         });
     });
-  });
-
-  // Filter DataTable berdasarkan periode
-  $("#periode").on("change", function () {
-    var val = $(this).val();
-    // Kolom Periode ada di index 1 (setelah No)
-    if (val) {
-      table
-        .column(1)
-        .search("^" + val + "$", true, false)
-        .draw();
-    } else {
-      table.column(1).search("", true, false).draw();
-    }
   });
 
   // SweetAlert2 Toast mixin
@@ -1425,14 +1568,17 @@ $(document).ready(function () {
           .done(function (resp) {
             if (resp && resp.ok) {
               // Otomatis refresh tabel AJAX agar data dan status langsung update
-              showTableLoading();
-              $.get("api/get_peserta.php", function (resp2) {
-                if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
-                  buildMainTableFromData(resp2.data);
-                }
-              }).always(function () {
-                hideTableLoading();
-              });
+              // showTableLoading();
+              // $.get(
+              //   "api/get_peserta.php?_t=" + new Date().getTime(),
+              //   function (resp2) {
+              //     if (resp2 && resp2.ok && Array.isArray(resp2.data)) {
+              //       buildMainTableFromData(resp2.data);
+              //     }
+              //   }
+              // ).always(function () {
+              //   hideTableLoading();
+              // });
               Toast.fire({
                 icon: "success",
                 title:
@@ -1509,29 +1655,29 @@ $(document).ready(function () {
       console.warn("DataTable #data-peserta-table not initialized yet");
       return;
     }
-    showTableLoading();
-    $.get("api/get_peserta.php", function (resp) {
-      hideTableLoading();
-      if (resp && resp.ok && Array.isArray(resp.data)) {
-        buildMainTableFromData(resp.data);
-        // Refresh periode tabel juga
-        try {
-          if (typeof loadPeriodeTable === "function") loadPeriodeTable();
-        } catch (e) {
-          console.warn("loadPeriodeTable error:", e);
-        }
-      } else {
-        console.error("get_peserta.php returned invalid response:", resp);
-        Toast.fire({ icon: "error", title: "Gagal memuat data peserta" });
-      }
-    }).fail(function (xhr) {
-      hideTableLoading();
-      console.error("get_peserta.php request failed:", xhr);
-      Toast.fire({
-        icon: "error",
-        title: "Terjadi kesalahan saat memuat data",
-      });
-    });
+    // showTableLoading();
+    // $.get("api/get_peserta.php?_t=" + new Date().getTime(), function (resp) {
+    //   hideTableLoading();
+    //   if (resp && resp.ok && Array.isArray(resp.data)) {
+    //     buildMainTableFromData(resp.data);
+    //     // Refresh periode tabel juga
+    //     try {
+    //       if (typeof loadPeriodeTable === "function") loadPeriodeTable();
+    //     } catch (e) {
+    //       console.warn("loadPeriodeTable error:", e);
+    //     }
+    //   } else {
+    //     console.error("get_peserta.php returned invalid response:", resp);
+    //     Toast.fire({ icon: "error", title: "Gagal memuat data peserta" });
+    //   }
+    // }).fail(function (xhr) {
+    //   hideTableLoading();
+    //   console.error("get_peserta.php request failed:", xhr);
+    //   Toast.fire({
+    //     icon: "error",
+    //     title: "Terjadi kesalahan saat memuat data",
+    //   });
+    // });
   }
 
   // Expose fungsi global untuk digunakan di tempat lain jika diperlukan
@@ -1550,6 +1696,19 @@ $(document).on("click", ".btn-add-invoice", function (e) {
   e.preventDefault();
   var idbatch = $(this).data("idbatch");
   var periode = $(this).data("periode");
+  var jenis = $(this).data("jenis");
+  var jenis_name = "";
+  switch (jenis) {
+    case 1:
+      jenis_name = "JHT REGULAR";
+      break;
+    case 2:
+      jenis_name = "JHT TOP UP";
+      break;
+    case 3:
+      jenis_name = "PKP REGULAR";
+      break;
+  }
   console.log(idbatch);
   console.log(periode);
 
@@ -1566,7 +1725,7 @@ $(document).on("click", ".btn-add-invoice", function (e) {
                         <!-- ROW 1: PERIODE (DROPDOWN) -->
                         <div style="display:flex; flex-direction:column; gap:4px;">
                             <label for="swal-periode-select" style="font-size:14px;font-weight:500;">Periode</label>
-                            <select id="swal-periode-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" style="margin:0;">
+                            <select id="swal-periode-select" disabled class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" style="margin:0;">
                                 <option value="">-- Pilih Periode --</option>
                             </select>
                         </div>
@@ -1585,7 +1744,7 @@ $(document).on("click", ".btn-add-invoice", function (e) {
                         <div style="display:flex; gap:12px;">
                             <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
                                 <label for="swal-jenis_invoice" style="font-size:14px;font-weight:500;">Jenis Premi</label>
-                                <select id="swal-jenis_invoice" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" style="margin:0;">
+                                <select id="swal-jenis_invoice" disabled class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" style="margin:0;">
                                     <option value="">-- Pilih Jenis Premi --</option>
                                 </select>
                             </div>
@@ -1603,7 +1762,7 @@ $(document).on("click", ".btn-add-invoice", function (e) {
                             </div>
                             <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
                                 <label for="swal-jml_peserta" style="font-size:14px;font-weight:500;">Jumlah Peserta</label>
-                                <input id="swal-jml_peserta" type="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Jumlah Peserta" style="margin:0;">
+                                <input id="swal-jml_peserta" readonly type="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Jumlah Peserta" style="margin:0;">
                             </div>
                         </div>
                         
@@ -1617,7 +1776,7 @@ $(document).on("click", ".btn-add-invoice", function (e) {
                                 <label for="swal-jml_premi" style="font-size:14px;font-weight:500;">Total Premi</label>
                                 <div style="display:flex; align-items:center; border:1px solid #ccc; border-radius:8px; overflow:hidden; width:100%; height:42px;">
                                     <span style="padding:0 10px; font-size:14px; color:#555; white-space:nowrap;">Rp</span>
-                                    <input id="swal-jml_premi" type="text" class="bg-gray-50 border-none text-gray-900 text-sm outline-none block flex-1" placeholder="Masukkan premi" inputmode="numeric" style="margin:0; padding:16px 10px; font-size:14px; border-radius:8px; border-left:1px solid #ccc; border-right:1px solid #fff;">
+                                    <input id="swal-jml_premi" readonly type="text" class="bg-gray-50 border-none text-gray-900 text-sm outline-none block flex-1" placeholder="Masukkan premi" inputmode="numeric" style="margin:0; padding:16px 10px; font-size:14px; border-radius:8px; border-left:1px solid #ccc; border-right:1px solid #fff;">
                                 </div>
                             </div>
                         </div>
@@ -1630,15 +1789,15 @@ $(document).on("click", ".btn-add-invoice", function (e) {
                                 <p style="font-size:12px; color:#999; margin:0;">Format: PDF</p>
                             </div>
                             
-                            <div style="display:flex; flex-direction:column; gap:4px;">
-                                <label for="swal-link_peserta" style="font-size:14px;font-weight:500;">Data Peserta (Excel)</label>
-                                <input id="swal-link_peserta" type="file" accept=".xlsx,.xls" class="block w-full text-sm text-gray-500 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2" style="margin:0;">
-                                <p style="font-size:12px; color:#999; margin:0;">Format: Excel (.xlsx, .xls)</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            `,
+                            </div>
+                            </div>
+                            `,
+    // <div style="display:flex; flex-direction:column; gap:4px;">
+    //     <label for="swal-link_peserta" style="font-size:14px;font-weight:500;">Data Peserta (Excel)</label>
+    //     <input id="swal-link_peserta" type="file" accept=".xlsx,.xls" class="block w-full text-sm text-gray-500 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2" style="margin:0;">
+    //     <p style="font-size:12px; color:#999; margin:0;">Format: Excel (.xlsx, .xls)</p>
+    // </div>
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: "Simpan",
@@ -1684,6 +1843,10 @@ $(document).on("click", ".btn-add-invoice", function (e) {
                 allowClear: true,
                 width: "100%",
               });
+              if (periode) {
+                $(periodeSelect).val(periode).trigger("change");
+                fillBulanTahunFromPeriode(periode);
+              }
             }
           }
         });
@@ -1692,48 +1855,59 @@ $(document).on("click", ".btn-add-invoice", function (e) {
         if (periodeSelect) {
           $(periodeSelect).on("change", function () {
             const selectedPeriode = this.value;
-            const bulanEl = document.getElementById("swal-bulan");
-            const tahunEl = document.getElementById("swal-tahun");
+            function fillBulanTahunFromPeriode(periodeStr) {
+              const bulanEl = document.getElementById("swal-bulan");
+              const tahunEl = document.getElementById("swal-tahun");
 
-            // Parse periode YYYYMM -> MM and YYYY
-            if (selectedPeriode && selectedPeriode.length === 6) {
-              const yyyy = selectedPeriode.substring(0, 4);
-              const mm = selectedPeriode.substring(4, 6);
-              if (bulanEl) bulanEl.value = mm;
-              if (tahunEl) tahunEl.value = yyyy;
-            } else {
-              if (bulanEl) bulanEl.value = "";
-              if (tahunEl) tahunEl.value = "";
-            }
+              // Parse periode YYYYMM -> MM and YYYY
+              if (selectedPeriode && selectedPeriode.length === 6) {
+                const yyyy = selectedPeriode.substring(0, 4);
+                const mm = selectedPeriode.substring(4, 6);
+                if (bulanEl) bulanEl.value = mm;
+                if (tahunEl) tahunEl.value = yyyy;
+              } else {
+                if (bulanEl) bulanEl.value = "";
+                if (tahunEl) tahunEl.value = "";
+              }
 
-            // Clear and load jenis dropdown for this periode
-            if (jenisSelect) {
-              // Clear existing options (keep placeholder)
-              $(jenisSelect)
-                .empty()
-                .append('<option value="">Pilih Jenis Premi</option>');
+              // Clear and load jenis dropdown for this periode
+              if (jenisSelect) {
+                // Clear existing options (keep placeholder)
+                $(jenisSelect)
+                  .empty()
+                  .append('<option value="">Pilih Jenis Premi</option>');
 
-              if (selectedPeriode) {
-                $.get(
-                  "api/get_periode_jenis.php?mode=periode_jenis&periode=" +
-                    encodeURIComponent(selectedPeriode) +
-                    "&idbatch=" +
-                    encodeURIComponent(idbatch),
-                  function (resp) {
-                    if (resp.ok && resp.data) {
-                      resp.data.forEach(function (item) {
-                        const opt = document.createElement("option");
-                        opt.value = item.jenis_value;
-                        opt.textContent = item.jenis_name;
-                        jenisSelect.appendChild(opt);
-                      });
-                      // Trigger Select2 refresh
-                      $(jenisSelect).trigger("change");
-                    }
+                if (selectedPeriode) {
+                  const opt = document.createElement("option");
+                  opt.value = jenis;
+                  opt.textContent = jenis_name;
+                  jenisSelect.appendChild(opt);
+                  if (jenis) {
+                    $(jenisSelect).val(jenis).trigger("change");
                   }
-                );
+                  $(jenisSelect).trigger("change");
+                  // $.get(
+                  //   "api/get_periode_jenis.php?mode=periode_jenis&periode=" +
+                  //     encodeURIComponent(selectedPeriode) +
+                  //     "&idbatch=" +
+                  //     encodeURIComponent(idbatch),
+                  //   function (resp) {
+                  //     if (resp.ok && resp.data) {
+                  //       resp.data.forEach(function (item) {
+                  //         const opt = document.createElement("option");
+                  //         opt.value = item.jenis_value;
+                  //         opt.textContent = item.jenis_name;
+                  //         jenisSelect.appendChild(opt);
+                  //       });
+                  //       // Trigger Select2 refresh
+                  //       $(jenisSelect).trigger("change");
+                  //     }
+                  //   }
+                  // );
+                }
               }
             }
+            fillBulanTahunFromPeriode(selectedPeriode);
           });
         }
 
@@ -1859,7 +2033,7 @@ $(document).on("click", ".btn-add-invoice", function (e) {
       const jml_premi = document.getElementById("swal-jml_premi").value;
       const pic = document.getElementById("swal-pic").value;
       const linkFile = document.getElementById("swal-link_file").files[0];
-      const linkPeserta = document.getElementById("swal-link_peserta").files[0];
+      // const linkPeserta = document.getElementById("swal-link_peserta").files[0];
 
       // Parse currency untuk jml_premi
       let jml_premi_formatted = jml_premi
@@ -1878,7 +2052,7 @@ $(document).on("click", ".btn-add-invoice", function (e) {
         jml_premi: jml_premi_formatted,
         pic: pic,
         linkFile: linkFile,
-        linkPeserta: linkPeserta,
+        // linkPeserta: linkPeserta,
         idbatch: idbatch,
       };
     },
@@ -1936,9 +2110,9 @@ $(document).on("click", ".btn-add-invoice", function (e) {
       if (data.linkFile) {
         formData.append("link_file", data.linkFile);
       }
-      if (data.linkPeserta) {
-        formData.append("link_peserta", data.linkPeserta);
-      }
+      // if (data.linkPeserta) {
+      //   formData.append("link_peserta", data.linkPeserta);
+      // }
 
       // Send to API via AJAX
       $.ajax({

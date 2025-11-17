@@ -11,7 +11,8 @@ if (!is_admin_or_admintl()) {
 // Simple endpoint untuk return data peserta sebagai JSON
 header('Content-Type: application/json');
 include_once '../../db/db.php';
-$result = mysqli_query($conn, "SELECT id, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, status_data FROM data_peserta ORDER BY periode DESC, id DESC");
+$result = mysqli_query($conn, "SELECT * FROM data_peserta ORDER BY periode DESC, id DESC");
+// $result = mysqli_query($conn, "SELECT id, periode, jenis_premi, jml_premi_krywn, jml_premi_pt, total_premi, status_data FROM data_peserta ORDER BY periode DESC, id DESC");
 $data = [];
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {

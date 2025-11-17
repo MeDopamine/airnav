@@ -37,9 +37,9 @@ if (!$idbatch) $errors[] = 'ID Batch wajib diisi';
 if (!isset($_FILES['link_file']) || $_FILES['link_file']['error'] !== UPLOAD_ERR_OK) {
     $errors[] = 'File Invoice (PDF) wajib diunggah';
 }
-if (!isset($_FILES['link_peserta']) || $_FILES['link_peserta']['error'] !== UPLOAD_ERR_OK) {
-    $errors[] = 'Data Peserta (Excel) wajib diunggah';
-}
+// if (!isset($_FILES['link_peserta']) || $_FILES['link_peserta']['error'] !== UPLOAD_ERR_OK) {
+//     $errors[] = 'Data Peserta (Excel) wajib diunggah';
+// }
 
 if (!empty($errors)) {
     echo json_encode(['ok' => false, 'msg' => implode(', ', $errors)]);
@@ -57,7 +57,7 @@ $pic = mysqli_real_escape_string($conn, $pic);
 
 // Handle file uploads (optional)
 $link_file = '';
-$link_peserta = '';
+// $link_peserta = '';
 
 // Create uploads directory if not exists
 $upload_dir = __DIR__ . '/../../uploads/invoices/';
@@ -83,22 +83,22 @@ if (isset($_FILES['link_file']) && $_FILES['link_file']['error'] === UPLOAD_ERR_
 }
 
 // Handle Excel peserta file upload
-if (isset($_FILES['link_peserta']) && $_FILES['link_peserta']['error'] === UPLOAD_ERR_OK) {
-    $file = $_FILES['link_peserta'];
-    $allowed_excel = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-    $mime_type = mime_content_type($file['tmp_name']);
+// if (isset($_FILES['link_peserta']) && $_FILES['link_peserta']['error'] === UPLOAD_ERR_OK) {
+//     $file = $_FILES['link_peserta'];
+//     $allowed_excel = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+//     $mime_type = mime_content_type($file['tmp_name']);
 
-    if (in_array($mime_type, $allowed_excel)) {
-        // Generate unique filename: periode_jenis_invoice_peserta_timestamp.xlsx
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = $periode . '_' . $jenis_invoice . '_peserta_' . time() . '.' . $ext;
-        $file_path = $upload_dir . $filename;
+//     if (in_array($mime_type, $allowed_excel)) {
+//         // Generate unique filename: periode_jenis_invoice_peserta_timestamp.xlsx
+//         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+//         $filename = $periode . '_' . $jenis_invoice . '_peserta_' . time() . '.' . $ext;
+//         $file_path = $upload_dir . $filename;
 
-        if (move_uploaded_file($file['tmp_name'], $file_path)) {
-            $link_peserta = 'uploads/invoices/' . $filename;
-        }
-    }
-}
+//         if (move_uploaded_file($file['tmp_name'], $file_path)) {
+//             $link_peserta = 'uploads/invoices/' . $filename;
+//         }
+//     }
+// }
 
 // Insert into invoice_airnav table
 // Using mapped field names to match database schema
