@@ -43,81 +43,82 @@ if (!is_admin_or_admintl()) {
             <!-- Area Konten Utama -->
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6 md:p-8">
                 <!-- Grid untuk Kartu Upload -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-
-                    <!-- Kartu Upload Data Peserta -->
-                    <?php if (!is_admintl()): ?>
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                            <div class="p-6">
-                                <h2 class="text-xl font-semibold text-gray-800">Upload Data Peserta</h2>
-                                <p class="text-sm text-gray-500 mt-2">
-                                    Upload file Excel (.xlsx, .xls) yang berisi data peserta baru.
-                                </p>
-                            </div>
-                            <div class="px-6 pb-6">
-                                <!-- Komponen Upload File -->
-                                <div class="upload-zone" data-zone-id="peserta">
-                                    <label for="peserta-upload" class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <div class="w-10 h-10 mb-3 text-gray-400">
-                                                <i class="fa-solid fa-upload fa-2xl"></i>
+                <div class="flex justify-center">
+                    <div class="w-full max-w-2xl">
+                        <!-- Kartu Upload Data Peserta -->
+                        <?php if (!is_admintl()): ?>
+                            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                                <div class="p-6">
+                                    <h2 class="text-xl font-semibold text-gray-800">Upload Data Peserta</h2>
+                                    <p class="text-sm text-gray-500 mt-2">
+                                        Upload file Excel (.xlsx, .xls) yang berisi data peserta baru.
+                                    </p>
+                                </div>
+                                <div class="px-6 pb-6">
+                                    <!-- Komponen Upload File -->
+                                    <div class="upload-zone" data-zone-id="peserta">
+                                        <label for="peserta-upload" class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <div class="w-10 h-10 mb-3 text-gray-400">
+                                                    <i class="fa-solid fa-upload fa-2xl"></i>
+                                                </div>
+                                                <p class="mb-2 text-sm text-gray-500 text-center">
+                                                    <span class="font-semibold">Seret & lepas file</span> atau klik untuk memilih
+                                                </p>
+                                                <p class="text-xs text-gray-500">XLSX, XLS</p>
                                             </div>
-                                            <p class="mb-2 text-sm text-gray-500 text-center">
-                                                <span class="font-semibold">Seret & lepas file</span> atau klik untuk memilih
-                                            </p>
-                                            <p class="text-xs text-gray-500">XLSX, XLS</p>
+                                            <input id="peserta-upload" type="file" class="hidden" accept=".xlsx, .csv" />
+                                        </label>
+                                    </div>
+                                    <!-- Tampilan file terpilih -->
+                                    <div id="peserta-filename" class="mt-4 text-sm text-gray-600 font-medium hidden">
+                                        File terpilih: <span></span>
+                                    </div>
+                                    <button class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                                        <i class="fa-solid fa-file-import mr-2"></i>Upload Data Peserta
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Kartu Upload Invoice -->
+                        <?php if (is_admintl()): ?>
+                            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                                <div class="p-6">
+                                    <h2 class="text-xl font-semibold text-gray-800">Upload Invoice</h2>
+                                    <p class="text-sm text-gray-500 mt-2">
+                                        Tambahkan invoice baru untuk periode yang dibutuhkan.
+                                    </p>
+                                </div>
+                                <div class="px-6 pb-6">
+                                    <button id="btn-upload-invoice" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                                        <i class="fa-solid fa-file-import mr-2"></i>Upload Invoice
+                                    </button>
+
+                                    <!-- Tabel Invoice Pending & Revisi -->
+                                    <div class="mt-6 overflow-x-auto">
+                                        <table id="invoice-pending-table" class="w-full text-sm">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Periode</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Premi</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Invoice</th>
+                                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="invoice-pending-tbody" class="bg-white divide-y divide-gray-200">
+                                                <!-- Data loaded via AJAX -->
+                                            </tbody>
+                                        </table>
+                                        <div id="invoice-pending-empty" class="text-center py-8 text-gray-500">
+                                            <i class="fa-solid fa-inbox text-3xl mb-2 opacity-50"></i>
+                                            <p class="text-sm">Tidak ada invoice</p>
                                         </div>
-                                        <input id="peserta-upload" type="file" class="hidden" accept=".xlsx, .csv" />
-                                    </label>
-                                </div>
-                                <!-- Tampilan file terpilih -->
-                                <div id="peserta-filename" class="mt-4 text-sm text-gray-600 font-medium hidden">
-                                    File terpilih: <span></span>
-                                </div>
-                                <button class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
-                                    <i class="fa-solid fa-file-import mr-2"></i>Upload Data Peserta
-                                </button>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Kartu Upload Invoice -->
-                    <?php if (is_admintl()): ?>
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                            <div class="p-6">
-                                <h2 class="text-xl font-semibold text-gray-800">Upload Invoice</h2>
-                                <p class="text-sm text-gray-500 mt-2">
-                                    Tambahkan invoice baru untuk periode yang dibutuhkan.
-                                </p>
-                            </div>
-                            <div class="px-6 pb-6">
-                                <button id="btn-upload-invoice" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
-                                    <i class="fa-solid fa-file-import mr-2"></i>Upload Invoice
-                                </button>
-
-                                <!-- Tabel Invoice Pending & Revisi -->
-                                <div class="mt-6 overflow-x-auto">
-                                    <table id="invoice-pending-table" class="w-full text-sm">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Periode</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Premi</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Invoice</th>
-                                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="invoice-pending-tbody" class="bg-white divide-y divide-gray-200">
-                                            <!-- Data loaded via AJAX -->
-                                        </tbody>
-                                    </table>
-                                    <div id="invoice-pending-empty" class="text-center py-8 text-gray-500">
-                                        <i class="fa-solid fa-inbox text-3xl mb-2 opacity-50"></i>
-                                        <p class="text-sm">Tidak ada invoice</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Tabel Riwayat Upload -->

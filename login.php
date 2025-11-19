@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if (!empty($not_registered)): ?>
             <div class="mb-4 bg-blue-50 border border-blue-200 text-blue-700 p-3 rounded">
-                <p class="text-sm">Email belum terdaftar. Silakan <a href="/register.php" class="font-medium text-blue-600">daftar</a> terlebih dahulu untuk membuat akun.</p>
+                <p class="text-sm">Email atau Password Salah, Harap cek kembali Email dan Password Anda</p>
             </div>
         <?php endif; ?>
 

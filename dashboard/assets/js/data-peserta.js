@@ -710,7 +710,7 @@ $(document).on("click", ".btn-lihat-peserta", function () {
       Swal.fire({
         title: titleText,
         html: html,
-        width: "85vw",
+        width: "95vw",
         customClass: { popup: "swal2-modal-peserta" },
         showCloseButton: true,
         showCancelButton: false,
@@ -719,7 +719,7 @@ $(document).on("click", ".btn-lihat-peserta", function () {
           setTimeout(function () {
             var dt = $("#modal-peserta-table").DataTable({
               pageLength: 10,
-              ordering: true,
+              ordering: false,
               dom: "Bfrtip",
               buttons:
                 typeof userRole !== "undefined" &&
@@ -818,6 +818,133 @@ $(document).on("click", ".btn-lihat-peserta", function () {
                                         icon: "success",
                                         title:
                                           "Semua peserta periode ini sudah di-approve",
+                                        timer: 2000,
+                                        showConfirmButton: false,
+                                      });
+                                    }
+                                    // disable Approve All button now that all are approved (if DataTable/button still present)
+                                    try {
+                                      dt.button(0).enable(false);
+                                      btn
+                                        .addClass(
+                                          "opacity-50 cursor-not-allowed"
+                                        )
+                                        .prop("disabled", true);
+                                    } catch (e) {
+                                      // ignore if dt/button not available
+                                    }
+                                  } else {
+                                    // reset button and show error
+                                    resetApproveAllButton(btn);
+                                    showErrorNotification(
+                                      "Gagal approve semua peserta"
+                                    );
+                                  }
+                                },
+                                error: function () {
+                                  // reset button and show error on network failure
+                                  resetApproveAllButton(btn);
+                                  showErrorNotification(
+                                    "Gagal approve semua peserta"
+                                  );
+                                },
+                              });
+                            }
+                          });
+                        },
+                      },
+                      {
+                        text: '<i class="fa-solid fa-times mr-2"></i>Reject All',
+                        className:
+                          "reject-all-btn bg-red-500 hover:bg-red-600 text-white font-semibold rounded-full px-4 py-2 transition flex items-center",
+                        action: function (e, dt, node, config) {
+                          var btn = $(node);
+                          // Tampilkan konfirmasi sebelum melakukan approve all
+                          Swal.fire({
+                            title: "Reject",
+                            text:
+                              "Yakin ingin menolak semua peserta untuk periode " +
+                              titleText +
+                              " ?",
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonText: "Ya, Reject Semua",
+                            cancelButtonText: "Batal",
+                          }).then(function (result) {
+                            if (result.isConfirmed) {
+                              btn
+                                .prop("disabled", true)
+                                .html(
+                                  '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Memproses...'
+                                );
+                              // include jenis if present so approval is scoped by periode + jenis_premi
+                              var postData = {
+                                reject_all: 1,
+                                periode: periode,
+                              };
+                              if (
+                                typeof jenis !== "undefined" &&
+                                jenis !== null &&
+                                String(jenis) !== ""
+                              )
+                                postData.jenis = jenis;
+                              if (
+                                typeof idbatch !== "undefined" &&
+                                idbatch !== null &&
+                                String(idbatch) !== ""
+                              )
+                                postData.idbatch = idbatch;
+                              postData.status_data = status;
+
+                              $.ajax({
+                                url: "api/update_status_peserta.php",
+                                type: "POST",
+                                data: postData,
+                                dataType: "json",
+                                success: function (resp) {
+                                  if (resp && resp.ok) {
+                                    Swal.close();
+                                    // Refresh tabel utama peserta (AJAX) using centralized helper
+                                    // if (
+                                    //   $("#data-peserta-table").length &&
+                                    //   $.fn.DataTable.isDataTable(
+                                    //     "#data-peserta-table"
+                                    //   )
+                                    // ) {
+                                    //   showTableLoading && showTableLoading();
+                                    //   $.get(
+                                    //     "api/get_peserta.php?_t=" +
+                                    //       new Date().getTime(),
+                                    //     function (resp2) {
+                                    //       if (
+                                    //         resp2 &&
+                                    //         resp2.ok &&
+                                    //         Array.isArray(resp2.data)
+                                    //       ) {
+                                    //         buildMainTableFromData(resp2.data);
+                                    //       }
+                                    //     }
+                                    //   ).always(function () {
+                                    //     hideTableLoading && hideTableLoading();
+                                    //   });
+                                    // }
+                                    // Refresh periode table to update approval status
+                                    if (
+                                      typeof loadPeriodeTable === "function"
+                                    ) {
+                                      loadPeriodeTable();
+                                    }
+                                    if (typeof Toast !== "undefined") {
+                                      Toast.fire({
+                                        icon: "success",
+                                        title:
+                                          "Semua peserta periode ini sudah di-reject",
+                                      });
+                                    } else {
+                                      Swal.fire({
+                                        icon: "success",
+                                        title:
+                                          "Semua peserta periode ini sudah di-reject",
                                         timer: 2000,
                                         showConfirmButton: false,
                                       });

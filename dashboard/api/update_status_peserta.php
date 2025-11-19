@@ -17,6 +17,60 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 include_once __DIR__ . '/../../db/db.php';
 
 // Bulk approve by periode
+if (isset($_POST['reject_all']) && isset($_POST['periode'])) {
+    $periode_raw = trim($_POST['periode']);
+    // Normalize periode to YYYYMM if possible
+    $digits = preg_replace('/[^0-9]/', '', $periode_raw);
+    if (preg_match('/^\d{4}-\d{2}$/', $periode_raw)) {
+        $periode = str_replace('-', '', $periode_raw);
+    } elseif (preg_match('/^\d{6}$/', $digits)) {
+        $periode = $digits;
+    } else {
+        // invalid format
+        echo json_encode(['ok' => false, 'msg' => 'Periode tidak valid']);
+        mysqli_close($conn);
+        exit;
+    }
+
+    // prepared statement, optionally filter by jenis_premi
+    if (isset($_POST['jenis']) && $_POST['jenis'] !== '') {
+        $jenis_raw = trim($_POST['jenis']);
+        $idbatch_raw = isset($_POST['idbatch']) ? trim($_POST['idbatch']) : '';
+        $jenis = mysqli_real_escape_string($conn, $jenis_raw);
+        $idbatch = mysqli_real_escape_string($conn, $idbatch_raw);
+        $sql = "UPDATE data_peserta SET status_data = 2 WHERE periode = ? AND jenis_premi = ? and idbatch = ?";
+        if ($stmt = mysqli_prepare($conn, $sql)) {
+            mysqli_stmt_bind_param($stmt, 'sss', $periode, $jenis, $idbatch);
+            $exec = mysqli_stmt_execute($stmt);
+            $affected = mysqli_stmt_affected_rows($stmt);
+            mysqli_stmt_close($stmt);
+            if ($exec) {
+                echo json_encode(['ok' => true, 'affected' => $affected]);
+            } else {
+                echo json_encode(['ok' => false, 'msg' => 'Gagal approve semua peserta']);
+            }
+        } else {
+            echo json_encode(['ok' => false, 'msg' => 'Failed to prepare statement']);
+        }
+    } else {
+        $sql = "UPDATE data_peserta SET status_data = 2 WHERE periode = ?";
+        if ($stmt = mysqli_prepare($conn, $sql)) {
+            mysqli_stmt_bind_param($stmt, 's', $periode);
+            $exec = mysqli_stmt_execute($stmt);
+            $affected = mysqli_stmt_affected_rows($stmt);
+            mysqli_stmt_close($stmt);
+            if ($exec) {
+                echo json_encode(['ok' => true, 'affected' => $affected]);
+            } else {
+                echo json_encode(['ok' => false, 'msg' => 'Gagal approve semua peserta']);
+            }
+        } else {
+            echo json_encode(['ok' => false, 'msg' => 'Failed to prepare statement']);
+        }
+    }
+    mysqli_close($conn);
+    exit;
+}
 if (isset($_POST['approve_all']) && isset($_POST['periode'])) {
     $periode_raw = trim($_POST['periode']);
     // Normalize periode to YYYYMM if possible

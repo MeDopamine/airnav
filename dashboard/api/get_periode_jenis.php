@@ -110,7 +110,8 @@ $sql = "SELECT periode,
         FROM data_peserta
         where `status`= 1
         GROUP BY periode, jenis_premi, status_data, idbatch
-        ORDER BY periode DESC, jenis_premi ASC, status_data ASC";
+        ORDER BY idbatch DESC";
+// ORDER BY periode DESC, jenis_premi ASC, status_data ASC";
 
 $res = mysqli_query($conn, $sql);
 $out = [];
