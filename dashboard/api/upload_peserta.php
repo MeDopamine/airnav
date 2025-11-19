@@ -554,7 +554,7 @@ try {
   $log_status = ($inserted > 0) ? 'Berhasil' : 'Gagal';
 
 
-  $log_stmt = $conn->prepare("INSERT INTO riwayat_upload (nama_file, tipe_data, tanggal_upload, status) VALUES (?, 'Data Peserta', NOW(), ?)");
+  $log_stmt = $conn->prepare("INSERT INTO riwayat_upload (nama_file, tipe_data, tanggal_upload, status) VALUES (?, 'Data Peserta', DATE_ADD(NOW(), INTERVAL 7 HOUR), ?)");
   if ($log_stmt) {
     $log_stmt->bind_param('ss', $fileName, $log_status);
     $log_stmt->execute();
