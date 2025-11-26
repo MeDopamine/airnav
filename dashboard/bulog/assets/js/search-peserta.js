@@ -304,8 +304,11 @@ $(document).ready(function() {
                     html: detailHTML,
                     width: '90%',
                     padding: '20px 10px',
-                    confirmButtonText: 'Tutup',
-                    confirmButtonColor: '#3b82f6',
+                    cshowCancelButton: true,
+                    cancelButtonText: 'Tutup',
+                    confirmButtonText: 'Download Excel',
+                    confirmButtonColor: '#22c55e',
+                    cancelButtonColor: '#3b82f6',
                     didOpen: function() {
 
                         const modalContent = document.querySelector('.swal2-html-container');
@@ -332,8 +335,104 @@ $(document).ready(function() {
                             ]
                         });
                     }
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        downloadExcel(histories, nama, nomorPolis, notas);
+                    }
                 });
             }
         });
     });
+
+    function downloadExcel(histories, nama, polis, notas) {
+
+        // ---- HEADER DATA PERSONAL ----
+        let headerData = [
+            ["Data Pribadi"],
+            ["Nama", nama],
+            ["Nomor Polis", polis],
+            ["Notas", notas],
+            [],
+            ["Detail Premi"]
+        ];
+
+        // ---- HEADER TABEL ----
+        const tableHeader = [
+            "Bulan",
+            "Akumulasi Premi",
+            "Premi",
+            "Saldo Awal",
+            "Pengembangan",
+            "Saldo Akhir"
+        ];
+
+        // ---- DATA BODY ----
+        let tableRows = histories.map(h => [
+            h.currentMonth,
+            h.akumulasiPremi,
+            h.premiTopup,
+            h.saldoAwal,
+            h.pengembangan,
+            h.saldoAkhir
+        ]);
+
+        // Gabungkan ke worksheet
+        let wsData = [...headerData, tableHeader, ...tableRows];
+
+        let worksheet = XLSX.utils.aoa_to_sheet(wsData);
+
+        // ---- STYLING ----
+        const range = XLSX.utils.decode_range(worksheet['!ref']);
+
+        for (let R = 0; R <= range.e.r; R++) {
+            for (let C = 0; C <= range.e.c; C++) {
+                let cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                let cell = worksheet[cellAddress];
+                if (!cell) continue;
+
+                // Border untuk semua data tabel (mulai row header tabel)
+                if (R >= 5) {
+                    cell.s = {
+                        border: {
+                            top: { style: "thin" },
+                            bottom: { style: "thin" },
+                            left: { style: "thin" },
+                            right: { style: "thin" }
+                        }
+                    };
+                }
+
+                // Header Table Styling (Row 5 untuk tabel)
+                if (R === 5) {
+                    cell.s = {
+                        font: { bold: true, color: { rgb: "#FFFFFF" } },
+                        alignment: { horizontal: "center" },
+                        fill: { fgColor: { rgb: "#4472C4" } },
+                        border: {
+                            top: { style: "thin" },
+                            bottom: { style: "thin" },
+                            left: { style: "thin" },
+                            right: { style: "thin" }
+                        }
+                    };
+                }
+            }
+        }
+
+        // Atur column width biar rapih
+        worksheet['!cols'] = [
+            { wpx: 110 },
+            { wpx: 130 },
+            { wpx: 100 },
+            { wpx: 120 },
+            { wpx: 120 },
+            { wpx: 120 }
+        ];
+
+        // Export ke file
+        let workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Detail Premi");
+
+        XLSX.writeFile(workbook, `Statement_${polis}_${nama}.xlsx`);
+    }
 });
