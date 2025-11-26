@@ -8,9 +8,9 @@ header('Content-Type: application/json');
 $polis = $_GET['polis'] ?? '';
 
 // --- MASUKKAN TOKEN DI SINI ---
-$token = "CheiUSkZUiH8UE7Z50O3kDKf2v7gNcd0FYch2GQO";   // contoh: eyJhbGciOiJIUzI1...
+$token = "3VGUkzXpm0mdkE1jDsPALWkbOmLfFbOJxF0O8rHc";   // contoh: eyJhbGciOiJIUzI1...
 
-$url = "https://dev-api.taspenlife.com/acs/account/statements/TS16AJTL00000137";
+$url = "https://api.taspenlife.com/acs/account/statements/$polis";
 
 // --- CURL REQUEST ---
 $curl = curl_init($url);
@@ -29,7 +29,7 @@ curl_setopt_array($curl, [
 // $curl = curl_init($url);
 // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($curl);
-curl_close($curl);
+// curl_close($curl);
 
 $data = json_decode($response, true);
 
@@ -62,4 +62,6 @@ if (isset($data['acs/account/statement']['histories']) && is_array($data['acs/ac
     }
 }
 
-echo json_encode($data);
+echo json_encode(
+    $data,
+);
