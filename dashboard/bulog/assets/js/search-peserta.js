@@ -139,7 +139,7 @@ $(document).ready(function () {
             return (
               '<button class="btn-view-detail bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-1.5 rounded-full transition" data-notas="' +
               row.notas + // Menggunakan notas sebagai identitas
-              '" title="Lihat detail"><i class="fa-solid fa-eye" style="font-size:13px;vertical-align:middle;margin-right:6px;"></i><span>Detail</span></button>'
+              '" title="Lihat detail"><i class="fa-solid fa-eye" style="font-size:13px;margin-right:6px;"></i><span>Detail</span></button>'
             );
           },
         },
@@ -152,7 +152,15 @@ $(document).ready(function () {
     var searchName = $("#search-nama").val().trim();
 
     if (!searchName) {
-      alert("Silakan masukkan nama atau NIK peserta");
+        swal.fire({
+          toast: true,
+            position: 'top',
+            icon: 'warning',
+            title: 'Silakan masukkan nama atau NIK peserta',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
       return;
     }
 
@@ -382,7 +390,7 @@ $(document).ready(function () {
           },
         }).then((result) => {
           if (result.isConfirmed) {
-            downloadExcel(histories, nama, nomorPolis, notas);
+            downloadExcel(histories, nama, nomorPolis, notas, premi);
           }
         });
       },

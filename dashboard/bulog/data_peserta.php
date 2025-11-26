@@ -47,29 +47,30 @@ include_once __DIR__ . '/partials/_init.php';
                     <div class="p-6">
                         <!-- Search Bar -->
                         <div class="mb-6">
-                            <div class="flex gap-3 items-end">
+                            <div class="flex gap-3">
                                 <div class="flex-1">
                                     <label
                                         for="search-nama"
                                         class="block text-sm font-medium text-gray-700 mb-2">
                                         Cari Peserta (Nama/NIK)
                                     </label>
-                                    <input
-                                        type="text"
-                                        id="search-nama"
-                                        placeholder="Masukkan nama atau NIK peserta..."
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
+                                    <div class="flex gap-3">
+                                        <input
+                                            type="text"
+                                            id="search-nama"
+                                            placeholder="Masukkan nama atau NIK peserta..."
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
+                                        <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
+                                            <i class="fa-solid fa-search"></i>
+                                            Cari
+                                        </button>
+                                        <button
+                                            id="btn-clear"
+                                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-search"></i>
-                                    Cari
-                                </button>
-                                <button
-                                    id="btn-clear"
-                                    class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-times"></i>
-
-                                </button>
                             </div>
                         </div>
 
