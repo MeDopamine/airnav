@@ -49,17 +49,16 @@ include_once __DIR__ . '/partials/_init.php';
                         <div class="mb-6">
                             <div class="flex gap-3 items-end">
                                 <div class="flex-1">
-                                    <label 
+                                    <label
                                         for="search-nama"
                                         class="block text-sm font-medium text-gray-700 mb-2">
                                         Cari Peserta (Nama/NIK)
                                     </label>
-                                    <input 
-                                        type="text" 
-                                        id="search-nama" 
+                                    <input
+                                        type="text"
+                                        id="search-nama"
                                         placeholder="Masukkan nama atau NIK peserta..."
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                    />
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
                                 </div>
                                 <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
                                     <i class="fa-solid fa-search"></i>
@@ -67,8 +66,9 @@ include_once __DIR__ . '/partials/_init.php';
                                 </button>
                                 <button
                                     id="btn-clear"
-                                    class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                                    class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
                                     <i class="fa-solid fa-times"></i>
+
                                 </button>
                             </div>
                         </div>
@@ -94,12 +94,10 @@ include_once __DIR__ . '/partials/_init.php';
                                 <thead>
                                     <tr>
                                         <th class="dt-center align-middle">No</th>
-                                        <th class="dt-center align-middle">NIK</th>
                                         <th class="dt-center align-middle">Nama</th>
-                                        <th class="dt-center align-middle">Periode</th>
-                                        <th class="dt-center align-middle">Jenis Premi</th>
-                                        <th class="dt-center align-middle">Total Premi</th>
-                                        <th class="dt-center align-middle">Tanggal Upload</th>
+                                        <th class="dt-center align-middle">No. Taspen</th>
+                                        <th class="dt-center align-middle">No. Kartu / NIK</th>
+                                        <th class="dt-center align-middle">ID Member</th>
                                         <th class="dt-center align-middle">Status</th>
                                         <th class="dt-center align-middle">Aksi</th>
                                     </tr>

@@ -1,86 +1,111 @@
 <?php
-// API untuk search data peserta berdasarkan nama (untuk bulog admin)
+// API untuk search data peserta berdasarkan NOTAS (menggunakan API eksternal)
 require_once __DIR__ . '/../../../auth.php';
 require_login();
 require_adminbl();
 
-include '../../../db/db.php';
+// db.php tidak diperlukan karena kita menggunakan API
+// include '../../../db/db.php'; 
+
 header('Content-Type: application/json');
 
-$searchName = isset($_GET['name']) ? trim($_GET['name']) : '';
+// Mengambil input, yang sekarang diasumsikan sebagai NOTAS
+$notas = isset($_GET['name']) ? trim($_GET['name']) : '';
 
-if (empty($searchName)) {
+if (empty($notas)) {
     echo json_encode([
         'ok' => false,
         'data' => [],
-        'msg' => 'Nama peserta tidak boleh kosong'
+        'msg' => 'Nama atau NOTAS tidak boleh kosong'
     ]);
     exit;
 }
 
-// Escape input untuk SQL
-$searchName = mysqli_real_escape_string($conn, $searchName);
+// --- KONFIGURASI API EKSTERNAL ---
+// Ganti dengan token API Taspen Life Anda yang valid
+$token = "3VGUkzXpm0mdkE1jDsPALWkbOmLfFbOJxF0O8rHc";
+$baseUrl = "https://api.taspenlife.com/acs/report/individuals";
+$url = $baseUrl . "?tipe=cekPesertaBulogByNotas&notas=" . urlencode($notas);
 
-// Query mencari data peserta berdasarkan nama, hanya yang status = 1 (aktif)
-$sql = "SELECT 
-            id,
-            periode,
-            jenis_premi,
-            nik,
-            CASE 
-                WHEN nama IS NOT NULL AND nama != '' THEN nama
-                ELSE 'N/A'
-            END AS nama,
-            tgl_lahir,
-            tgl_diangkat,
-            tmt_asuransi,
-            isg,
-            isik,
-            jml_rapel,
-            jml_premi_krywn,
-            jml_premi_pt,
-            total_premi,
-            status,
-            status_data,
-            created_at,
-            notas
-        FROM data_peserta
-        WHERE status = 1 AND (
-            LOWER(nama) LIKE LOWER('%$searchName%') OR
-            LOWER(nik) LIKE LOWER('%$searchName%')
-        )
-        ORDER BY periode DESC, created_at DESC
-        LIMIT 500";
+// --- PANGGILAN API DENGAN CURL ---
+$curl = curl_init($url);
 
-$res = mysqli_query($conn, $sql);
+curl_setopt_array($curl, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Accept: application/json",
+        // Masukkan Token Anda di sini
+        "Authorization: Bearer $token"
+    ],
+    CURLOPT_TIMEOUT => 15,
+]);
 
-if (!$res) {
+$response = curl_exec($curl);
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+// Cek jika terjadi error CURL
+if ($response === false) {
     echo json_encode([
         'ok' => false,
         'data' => [],
-        'msg' => 'Database error: ' . mysqli_error($conn)
+        'msg' => 'Gagal terhubung ke API eksternal: ' . curl_error($curl)
     ]);
     exit;
 }
 
-$data = [];
-while ($row = mysqli_fetch_assoc($res)) {
-    $data[] = $row;
-}
-mysqli_free_result($res);
+// Dekode respons JSON
+$apiData = json_decode($response, true);
 
-if (empty($data)) {
+// Cek jika HTTP Code menunjukkan kegagalan
+if ($httpCode !== 200) {
+    $errorMsg = isset($apiData['message']) ? $apiData['message'] : "API eksternal mengembalikan HTTP Status $httpCode.";
     echo json_encode([
-        'ok' => true,
-        'data' => [],
-        'msg' => 'Tidak ada data peserta dengan pencarian: ' . htmlspecialchars($searchName)
+        'ok' => false,
+        'data' => $apiData ?? [],
+        'msg' => 'Kesalahan API: ' . $errorMsg
     ]);
     exit;
 }
 
+// Asumsi: Jika API berhasil (HTTP 200), respons akan langsung dikembalikan.
+// Struktur respons dari API ini mungkin berbeda dari struktur database lokal Anda.
+
+$raw_data = $apiData['acs/report/individu'];
+$unique_data = [];
+$seen_notas = [];
+
+// --- LOGIKA DEDUPLIKASI BERDASARKAN NOTAS ---
+
+foreach ($raw_data as $entry) {
+    // Cek apakah 'notas' ada dan belum pernah dilihat
+    if (isset($entry['notas']) && !in_array($entry['notas'], $seen_notas)) {
+
+        // Simpan entri ini sebagai data unik
+        $unique_data[] = $entry;
+
+        // Tandai 'notas' ini sudah diproses
+        $seen_notas[] = $entry['notas'];
+    }
+}
+
+// --- OUTPUT HASIL DEDUPLIKASI ---
+
+// Jika API mengembalikan data (asumsi struktur API memiliki kunci 'data')
+if (empty($unique_data)) {
+    // Tidak ada data unik yang ditemukan setelah deduplikasi.
+    echo json_encode([
+        'ok' => true, // Status 'ok' tetap true jika API berhasil dihubungi
+        'data' => [],
+        'count' => 0,
+        'msg' => 'Tidak ada data peserta unik ditemukan untuk NOTAS: ' . htmlspecialchars($notas)
+    ]);
+    exit;
+}
+
+// Mengembalikan data unik yang telah diproses.
 echo json_encode([
     'ok' => true,
-    'data' => $data,
-    'count' => count($data)
+    'data' => $unique_data,
+    'count' => count($unique_data)
 ]);
-?>
