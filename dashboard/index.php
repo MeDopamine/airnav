@@ -5,9 +5,12 @@ include_once __DIR__ . '/partials/_init.php';
 // require login
 include_once __DIR__ . '/../auth.php';
 require_login();
-// only allow admin and admintl to access main dashboard; regular users go to their profile
+// only allow admin and admintl to access main dashboard; adminbl goes to bulog
 if (!is_admin_or_admintl()) {
     header('Location: user/dashboard.php');
+    exit;
+} elseif (is_adminbl()) {
+    header('Location: bulog/data_peserta.php');
     exit;
 }
 ?>
