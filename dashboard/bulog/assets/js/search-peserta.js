@@ -304,7 +304,7 @@ $(document).ready(function() {
                     html: detailHTML,
                     width: '90%',
                     padding: '20px 10px',
-                    cshowCancelButton: true,
+                    showCancelButton: true,
                     cancelButtonText: 'Tutup',
                     confirmButtonText: 'Download Excel',
                     confirmButtonColor: '#22c55e',
