@@ -93,15 +93,15 @@ include_once __DIR__ . '/partials/_init.php';
                             <table id="peserta-table" class="w-full display stripe hover bg-white" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th class="dt-center align-middle">No</th>
-                                        <th class="dt-center align-middle">NIK</th>
-                                        <th class="dt-center align-middle">Nama</th>
-                                        <th class="dt-center align-middle">Periode</th>
-                                        <th class="dt-center align-middle">Jenis Premi</th>
-                                        <th class="dt-center align-middle">Total Premi</th>
-                                        <th class="dt-center align-middle">Tanggal Upload</th>
-                                        <th class="dt-center align-middle">Status</th>
-                                        <th class="dt-center align-middle">Aksi</th>
+                                        <th class="text-center align-middle">No</th>
+                                        <th class="text-center align-middle">NIK</th>
+                                        <th class="text-center align-middle">Nama</th>
+                                        <th class="text-center align-middle">Periode</th>
+                                        <th class="text-center align-middle">Jenis Premi</th>
+                                        <th class="text-center align-middle">Total Premi</th>
+                                        <th class="text-center align-middle">Tanggal Upload</th>
+                                        <th class="text-center align-middle">Status</th>
+                                        <th class="text-center align-middle">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
