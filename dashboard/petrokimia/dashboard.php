@@ -41,17 +41,13 @@ include_once __DIR__ . '/partials/_init.php';
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6 md:p-8">
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800">Data APA INI?</h2>
-                        <p class="text-sm text-gray-500 mt-1">Detail data APA INI?</p>
+                        <h2 class="text-xl font-semibold text-gray-800">Data Instansi</h2>
                     </div>
                     <div class="p-6">
                         <!-- Loading State -->
                         <div id="loading-state" class="text-center py-12">
-                            <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                            </svg>
-                            <p class="text-gray-600 font-medium">Memuat data ...</p>
+                            <i class="fa-solid fa-arrows-rotate fa-spin text-4xl text-blue-600 mx-auto mb-4"></i>
+                            <p class="text-gray-600 font-medium">Memuat data</p>
                         </div>
 
                         <!-- Error State -->
@@ -64,9 +60,7 @@ include_once __DIR__ . '/partials/_init.php';
 
                         <!-- Data Container -->
                         <div id="data-container" class="hidden">
-                            <!-- Data Pribadi -->
                             <div class="mb-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">Data Pribadi</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <p class="text-xs font-semibold text-gray-500 uppercase">Nama</p>
@@ -76,26 +70,22 @@ include_once __DIR__ . '/partials/_init.php';
                                         <p class="text-xs font-semibold text-gray-500 uppercase">Nomor Polis</p>
                                         <p class="text-lg font-semibold text-gray-900" id="data-polis">-</p>
                                     </div>
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <p class="text-xs font-semibold text-gray-500 uppercase">Notas</p>
-                                        <p class="text-lg font-semibold text-gray-900" id="data-notas">-</p>
-                                    </div>
                                 </div>
-                            </div>
-
                             <!-- Detail Premi Table -->
-                            <div class="mt-8">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">Detail Premi</h3>
+                            <div class="mt-8 border border-gray-200 rounded-lg shadow-sm p-3">
                                 <div class="overflow-x-auto">
                                     <table id="detail-premi-table" class="w-full display stripe hover bg-white" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th class="dt-center text-center">Bulan</th>
-                                                <th class="dt-center text-center">Akumulasi Premi</th>
-                                                <th class="dt-center text-center">Premi</th>
                                                 <th class="dt-center text-center">Saldo Awal</th>
+                                                <th class="dt-center text-center">Premi</th>
+                                                <th class="dt-center text-center">Top Up</th>
+                                                <th class="dt-center text-center">Biaya</th>
+                                                <th class="dt-center text-center">Withdraw</th>
                                                 <th class="dt-center text-center">Pengembangan</th>
                                                 <th class="dt-center text-center">Saldo Akhir</th>
+                                                <th class="dt-center text-center">Jumlah Peserta</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -104,10 +94,10 @@ include_once __DIR__ . '/partials/_init.php';
                             </div>
 
                             <!-- Download Button -->
-                            <div class="mt-6 flex justify-end">
+                            <div class="mt-6 flex justify-center">
                                 <button id="btn-download" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
                                     <i class="fa-solid fa-download"></i>
-                                    Download Excel
+                                    Excel
                                 </button>
                             </div>
                         </div>

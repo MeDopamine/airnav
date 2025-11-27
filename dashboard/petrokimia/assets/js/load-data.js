@@ -2,13 +2,26 @@
 $(document).ready(function () {
   var detailTable = null;
   var currentData = null;
-  var currentHistories = [];
 
   // Format currency
   function formatCurrency(value) {
     if (!value || isNaN(value)) return "Rp 0";
     var num = parseFloat(value);
     return "Rp " + num.toLocaleString("id-ID", { maximumFractionDigits: 0 });
+  }
+
+  // Format negative numbers with parentheses
+  function formatNegative(value) {
+  if (!value || isNaN(value)) return "-";
+  const num = parseFloat(value);
+  return "(" + num.toLocaleString("id-ID", { maximumFractionDigits: 0 }) + ")";
+  }
+
+  // Format date
+  function formatDate(dateString) {
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", options);
   }
 
   // Load data on page load
@@ -27,23 +40,21 @@ $(document).ready(function () {
         // Hide loading state
         $("#loading-state").addClass("hidden");
 
-        if (response["acs/account/statement"]) {
-          const data = response["acs/account/statement"];
+        if (response["acs/report/individu"]) {
+          const data = response["acs/report/individu"];
           currentData = data;
+          nama = "Petrokimia";
+          polis = "3141";
 
           // Populate personal data
-          $("#data-nama").text(data.name || "-");
-          $("#data-polis").text(data.noPolis || "-");
-          $("#data-notas").text(data.id || "-");
-
-          // Prepare histories for table
-          currentHistories = data.histories || [];
+          $("#data-nama").text(nama);
+          $("#data-polis").text(polis);
 
           // Show data container
           $("#data-container").removeClass("hidden");
 
           // Initialize DataTable
-          initDataTable(currentHistories, data);
+          initDataTable(currentData);
         } else {
           showError("Format respons API tidak sesuai");
         }
@@ -61,19 +72,22 @@ $(document).ready(function () {
     $("#error-message").text(message);
   }
 
-  function initDataTable(histories, personData) {
+  function initDataTable(currentData) {
     if (detailTable) {
       detailTable.destroy();
     }
 
     // Transform data for DataTable
-    const tableData = histories.map((h) => ({
-      bulan: h.currentMonth || "-",
-      akumulasiPremi: h.akumulasiPremi || "-",
-      premi: formatCurrency(personData.premi),
-      saldoAwal: h.saldoAwal || "-",
-      pengembangan: h.pengembangan || "-",
-      saldoAkhir: h.saldoAkhir || "-",
+    const tableData = currentData.map((h) => ({
+      BALANCEDATE: formatDate(h.BALANCEDATE) || "-",
+      STARTBALANCE: h.STARTBALANCE || "-",
+      TOTALPREMIUM: h.TOTALPREMIUM || "-",
+      TOPUPAMOUNT: h.TOPUPAMOUNT || "-",
+      biaya: h.biaya ? formatNegative(h.biaya) : "-",
+      WITHDRAW: h.WITHDRAW  || "-",
+      INVESTMENT: h.INVESTMENT || "-",
+      ENDBALANCE: h.ENDBALANCE || "-",
+      NUMBEROFMEMBER: h.NUMBEROFMEMBER || "-",
     }));
 
     detailTable = $("#detail-premi-table").DataTable({
@@ -89,61 +103,69 @@ $(document).ready(function () {
         { targets: "_all", width: "120px", className: "text-right" },
       ],
       columns: [
-        { data: "bulan", className: "text-center" },
-        { data: "akumulasiPremi", className: "text-right" },
-        { data: "premi", className: "text-right" },
-        { data: "saldoAwal", className: "text-right" },
-        { data: "pengembangan", className: "text-right" },
-        { data: "saldoAkhir", className: "text-right" },
+        { data: "BALANCEDATE", className: "text-center" },
+        { data: "STARTBALANCE", className: "text-center" },
+        { data: "TOTALPREMIUM", className: "text-center" },
+        { data: "TOPUPAMOUNT", className: "text-center" },
+        { data: "biaya", className: "text-center" },
+        { data: "WITHDRAW", className: "text-center" },
+        { data: "INVESTMENT", className: "text-center" },
+        { data: "ENDBALANCE", className: "text-center" },
+        { data: "NUMBEROFMEMBER", className: "text-center" },
       ],
     });
   }
 
   // Download Excel button
   $("#btn-download").on("click", function () {
-    if (!currentData || !currentHistories) {
+    if (!currentData) {
       alert("Data tidak tersedia");
       return;
     }
 
     downloadExcel(
-      currentHistories,
-      currentData.name,
-      currentData.noPolis,
-      currentData.id,
-      formatCurrency(currentData.premi)
+      currentData,
+      nama,
+      polis,
+      formatCurrency(currentData.TOTALPREMIUM)
     );
   });
 
-  function downloadExcel(histories, nama, polis, notas, premi) {
-    // ---- HEADER DATA PERSONAL ----
-    let headerData = [
-      ["Data Pribadi"],
-      ["Nama", nama],
-      ["Nomor Polis", polis],
-      ["Notas", notas],
+  function downloadExcel(currentData, nama, polis) {
+    // ---- HEADER DATA ----
+    const headerData = [
+      ["STATEMENT DETAIL PREMI"],
       [],
-      ["Detail Premi"],
+      ["Nama Instansi", nama],
+      ["No. Polis", polis],
+      [],
+      ["DETAIL PREMI"],
+      [],
     ];
-
     // ---- HEADER TABEL ----
     const tableHeader = [
-      "Bulan",
-      "Akumulasi Premi",
-      "Premi",
-      "Saldo Awal",
-      "Pengembangan",
-      "Saldo Akhir",
+      "BULAN",
+      "SALDO AWAL",
+      "PREMI",
+      "TOP UP",
+      "BIAYA",
+      "WITHDRAW",
+      "PENGEMBANGAN",
+      "SALDO AKHIR",
+      "JUMLAH PESERTA",
     ];
 
     // ---- DATA BODY ----
-    let tableRows = histories.map((h) => [
-      h.currentMonth,
-      h.akumulasiPremi,
-      premi,
-      h.saldoAwal,
-      h.pengembangan,
-      h.saldoAkhir,
+    let tableRows = currentData.map((h) => [
+      formatDate(h.BALANCEDATE),
+      h.STARTBALANCE,
+      h.TOTALPREMIUM,
+      h.TOPUPAMOUNT,
+      h.biaya ? formatNegative(h.biaya) : "-",
+      h.WITHDRAW,
+      h.INVESTMENT,
+      h.ENDBALANCE,
+      h.NUMBEROFMEMBER,
     ]);
 
     // Gabungkan ke worksheet
@@ -197,12 +219,15 @@ $(document).ready(function () {
       { wpx: 120 },
       { wpx: 120 },
       { wpx: 120 },
+      { wpx: 130 },
+      { wpx: 130 },
+      { wpx: 130 },
     ];
 
     // Export ke file
     let workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Detail Premi");
 
-    XLSX.writeFile(workbook, `Statement_${polis}_${nama}.xlsx`);
+    XLSX.writeFile(workbook, `Statement_${nama}_${polis}.xlsx`);
   }
 });

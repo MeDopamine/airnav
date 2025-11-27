@@ -166,6 +166,7 @@ $(document).ready(function () {
 
     // Show loading
     $("#table-loading-overlay").show();
+    // $("#global-loading").show();
 
     // Perform search via API
     $.ajax({
@@ -196,6 +197,7 @@ $(document).ready(function () {
         currentSearchKeyword = searchName;
 
         $("#initial-state").hide();
+        // $("#global-loading").hide();
         $("#empty-state").hide();
 
         $("#search-info-container").show();
@@ -244,6 +246,7 @@ $(document).ready(function () {
   // Bind search button
   $("#btn-search").on("click", function () {
     performSearch();
+    
   });
 
   // Search on Enter key
@@ -269,6 +272,12 @@ $(document).ready(function () {
 
     $("#search-nama").focus();
   });
+
+  // Export button
+  $("#btn-export").click(function () {
+    window.location.href = "api/download_excel.php";
+  });
+
 
   // Delegated click handler for detail button
   $(document).on("click", ".btn-view-detail", function () {

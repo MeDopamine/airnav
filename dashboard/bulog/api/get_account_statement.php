@@ -10,7 +10,7 @@ $polis = $_GET['polis'] ?? '';
 // --- MASUKKAN TOKEN DI SINI ---
 $token = "3VGUkzXpm0mdkE1jDsPALWkbOmLfFbOJxF0O8rHc";   // contoh: eyJhbGciOiJIUzI1...
 
-$url = "https://api.taspenlife.com/acs/account/statements/$polis";
+$url = "https://api-gina.taspenlife.com/acs/account/statements/$polis";
 
 // --- CURL REQUEST ---
 $curl = curl_init($url);
