@@ -61,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: /dashboard/user/dashboard.php');
             } elseif (isset($row['role']) && $row['role'] === 'adminbl') {
                 header('Location: /dashboard/bulog/data_peserta.php');
+            } elseif (isset($row['role']) && $row['role'] === 'adminpk') {
+                header('Location: /dashboard/petrokimia/dashboard.php');
             } else {
                 header('Location: /dashboard/index.php');
             }

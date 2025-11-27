@@ -47,29 +47,36 @@ include_once __DIR__ . '/partials/_init.php';
                     <div class="p-6">
                         <!-- Search Bar -->
                         <div class="mb-6">
-                            <div class="flex gap-3 items-end">
+                            <div class="flex gap-3">
                                 <div class="flex-1">
                                     <label
                                         for="search-nama"
                                         class="block text-sm font-medium text-gray-700 mb-2">
                                         Cari Peserta (Nama/NIK)
                                     </label>
-                                    <input
-                                        type="text"
-                                        id="search-nama"
-                                        placeholder="Masukkan nama atau NIK peserta..."
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
+                                    <div class="flex gap-3">
+                                        <input
+                                            type="text"
+                                            id="search-nama"
+                                            placeholder="Masukkan nama atau NIK peserta..."
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
+                                        <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
+                                            <i class="fa-solid fa-search"></i>
+                                            Cari
+                                        </button>
+                                        <button
+                                            id="btn-clear"
+                                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                        <button
+                                            id="btn-export"
+                                            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
+                                            <i class="fa-solid fa-file-export"></i>
+                                            Export Excel
+                                        </button>
+                                    </div>
                                 </div>
-                                <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-search"></i>
-                                    Cari
-                                </button>
-                                <button
-                                    id="btn-clear"
-                                    class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-times"></i>
-
-                                </button>
                             </div>
                         </div>
 
@@ -104,14 +111,29 @@ include_once __DIR__ . '/partials/_init.php';
                                 </thead>
                                 <tbody></tbody>
                             </table>
+
+                            <!-- GLOBAL LOADING
+                            <div id="global-loading" style="
+                                display:none;
+                                position: fixed;
+                                top:0;left:0;right:0;bottom:0;
+                                background: rgba(255,255,255,0.7);
+                                z-index: 9999;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                            ">
+                                <div class="flex flex-col items-center justify-center h-full">
+                                    <i class="fa-solid fa-arrows-rotate fa-spin text-4xl text-blue-600 mb-4"></i>
+                                    <span class="text-blue-700 font-semibold">Sedang mencari data</span>
+                                </div>
+                            </div> -->
+
                             <!-- Overlay loading untuk area tabel saja -->
                             <div id="table-loading-overlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(255,255,255,0.7);z-index:20;align-items:center;justify-content:center;">
                                 <div class="flex flex-col items-center justify-center h-full">
-                                    <svg class="animate-spin h-10 w-10 text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                                    </svg>
-                                    <span class="text-blue-700 font-semibold">Memuat data...</span>
+                                    <i class="fa-solid fa-arrows-rotate fa-spin text-4xl text-blue-600 mx-auto mb-4"></i>
+                                    <span class="text-blue-700 font-semibold">Memuat data</span>
                                 </div>
                             </div>
                         </div>
@@ -138,5 +160,4 @@ include_once __DIR__ . '/partials/_init.php';
     <script src="./assets/js/search-peserta.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
-
 </html>

@@ -24,7 +24,7 @@ if (empty($notas)) {
 // --- KONFIGURASI API EKSTERNAL ---
 // Ganti dengan token API Taspen Life Anda yang valid
 $token = "3VGUkzXpm0mdkE1jDsPALWkbOmLfFbOJxF0O8rHc";
-$baseUrl = "https://api.taspenlife.com/acs/report/individuals";
+$baseUrl = "https://api-gina.taspenlife.com/acs/report/individuals";
 $url = $baseUrl . "?tipe=cekPesertaBulogByNotas&notas=" . urlencode($notas);
 
 // --- PANGGILAN API DENGAN CURL ---

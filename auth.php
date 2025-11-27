@@ -37,6 +37,10 @@ function is_adminbl() {
     return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'adminbl';
 }
 
+function is_adminpk() {
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'adminpk';
+}
+
 function is_admin_or_admintl() {
     $role = $_SESSION['user_role'] ?? null;
     return $role === 'admin' || $role === 'admintl';
@@ -62,6 +66,14 @@ function require_adminbl() {
     if (!is_adminbl()) {
         http_response_code(403);
         echo 'Terbatas: akses admin Bulog diperlukan.';
+        exit;
+    }
+}
+
+function require_adminpk() {
+    if (!is_adminpk()) {
+        http_response_code(403);
+        echo 'Terbatas: akses admin Petrokimia diperlukan.';
         exit;
     }
 }
