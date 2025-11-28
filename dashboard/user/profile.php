@@ -4,7 +4,7 @@ require_login();
 
 $user = current_user();
 // only allow users to access their profile; admins can also view via dashboard
-if ($user['role'] !== 'user' && $user['role'] !== 'admin') {
+if ($user['role'] !== 'user' && $user['role'] !== 'admintl') {
     echo 'Akses ditolak.';
     exit;
 }
@@ -72,6 +72,7 @@ if (!$approved) {
 ?>
 <!doctype html>
 <html lang="id">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -90,6 +91,7 @@ if (!$approved) {
         }
     </style>
 </head>
+
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
         <?php render_partial('sidebar_user'); ?>
@@ -128,14 +130,14 @@ if (!$approved) {
                             <div>
                                 <label class="block text-xs text-gray-400 uppercase tracking-wide">TANGGAL LAHIR</label>
                                 <div id="pf-tgl_lahir" class="mb-3 text-lg text-gray-900 font-semibold"><?php
-                                    $display_tgl = '-';
-                                    if (!empty($registrasi['tgl_lahir']) && $registrasi['tgl_lahir'] !== '0000-00-00') {
-                                        $dt = DateTime::createFromFormat('Y-m-d', $registrasi['tgl_lahir']);
-                                        if ($dt) $display_tgl = $dt->format('d M Y');
-                                        else $display_tgl = htmlspecialchars($registrasi['tgl_lahir']);
-                                    }
-                                    echo $display_tgl;
-                                ?></div>
+                                                                                                        $display_tgl = '-';
+                                                                                                        if (!empty($registrasi['tgl_lahir']) && $registrasi['tgl_lahir'] !== '0000-00-00') {
+                                                                                                            $dt = DateTime::createFromFormat('Y-m-d', $registrasi['tgl_lahir']);
+                                                                                                            if ($dt) $display_tgl = $dt->format('d M Y');
+                                                                                                            else $display_tgl = htmlspecialchars($registrasi['tgl_lahir']);
+                                                                                                        }
+                                                                                                        echo $display_tgl;
+                                                                                                        ?></div>
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-400 uppercase tracking-wide">NIK</label>
@@ -144,15 +146,15 @@ if (!$approved) {
                             <div>
                                 <label class="block text-xs text-gray-400 uppercase tracking-wide">KELAMIN</label>
                                 <div id="pf-kelamin" class="mb-3 text-lg text-gray-900 font-semibold"><?php
-                                    $kel = $registrasi['kelamin'] ?? null;
-                                    if ($kel === 'L') {
-                                        echo 'Laki-laki';
-                                    } elseif ($kel === 'P') {
-                                        echo 'Perempuan';
-                                    } else {
-                                        echo '-';
-                                    }
-                                ?></div>
+                                                                                                        $kel = $registrasi['kelamin'] ?? null;
+                                                                                                        if ($kel === 'L') {
+                                                                                                            echo 'Laki-laki';
+                                                                                                        } elseif ($kel === 'P') {
+                                                                                                            echo 'Perempuan';
+                                                                                                        } else {
+                                                                                                            echo '-';
+                                                                                                        }
+                                                                                                        ?></div>
                             </div>
                         </div>
 
@@ -166,4 +168,5 @@ if (!$approved) {
     </div>
     <?php render_partial('footer'); ?>
 </body>
+
 </html>

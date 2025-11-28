@@ -64,9 +64,8 @@ $(document).ready(function () {
         { targets: 1, width: "100px" }, // NIK
         { targets: 2, width: "150px" }, // Nama
         { targets: 3, width: "100px" }, // Periode
-        { targets: 4, width: "110px" }, // Jenis Premi
-        { targets: 5, width: "130px" }, // Total Premi
-        { targets: 6, width: "110px" }, // Tanggal Upload
+        { targets: 4, width: "130px" }, // Total Premi
+        { targets: 5, width: "110px" }, // Tanggal Upload
       ],
       columns: [
         {
@@ -101,18 +100,18 @@ $(document).ready(function () {
             return data || "-";
           },
         },
-        {
-          // 5. ID Anggota (menggunakan "IDMEMBER")
-          data: "IDMEMBER",
-          className: "text-center",
-          render: function (data) {
-            // Logika pemformatan lama dipertahankan, meskipun IDMEMBER baru terlihat berbeda (tidak 6 digit)
-            if (data && data.length === 6) {
-              return data.substring(0, 4) + "-" + data.substring(4, 6);
-            }
-            return data || "-";
-          },
-        },
+        // {
+        //   // 5. ID Anggota (menggunakan "IDMEMBER")
+        //   data: "IDMEMBER",
+        //   className: "text-center",
+        //   render: function (data) {
+        //     // Logika pemformatan lama dipertahankan, meskipun IDMEMBER baru terlihat berbeda (tidak 6 digit)
+        //     if (data && data.length === 6) {
+        //       return data.substring(0, 4) + "-" + data.substring(4, 6);
+        //     }
+        //     return data || "-";
+        //   },
+        // },
         {
           // 6. Status Peserta (Menggunakan "status" dari API)
           // Kolom ini ditambahkan kembali karena data "status: AKTIF" tersedia di respons API.
@@ -152,15 +151,15 @@ $(document).ready(function () {
     var searchName = $("#search-nama").val().trim();
 
     if (!searchName) {
-        swal.fire({
-          toast: true,
-            position: 'top',
-            icon: 'warning',
-            title: 'Silakan masukkan nama atau NIK peserta',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
+      swal.fire({
+        toast: true,
+        position: "top",
+        icon: "warning",
+        title: "Silakan masukkan nama atau NIK peserta",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
       return;
     }
 
@@ -246,7 +245,6 @@ $(document).ready(function () {
   // Bind search button
   $("#btn-search").on("click", function () {
     performSearch();
-    
   });
 
   // Search on Enter key
@@ -278,7 +276,6 @@ $(document).ready(function () {
     window.location.href = "api/download_excel.php";
   });
 
-
   // Delegated click handler for detail button
   $(document).on("click", ".btn-view-detail", function () {
     var pesertaId = $(this).data("notas");
@@ -305,13 +302,14 @@ $(document).ready(function () {
         let histories = data.histories || [];
         let rows = "";
 
+        // <td>${premi}</td>
         histories.forEach((history) => {
           rows += `
                         <tr>
-                            <td>${history.currentMonth}</td>
+                            <td>${formatTanggal(history.tglTrx)}</td>
                             <td>${history.akumulasiPremi}</td>
-                            <td>${premi}</td>
                             <td>${history.saldoAwal}</td>
+                            <td>${history.premiTopup}</td>
                             <td>${history.pengembangan}</td>
                             <td>${history.saldoAkhir}</td>
                         </tr>
@@ -346,8 +344,8 @@ $(document).ready(function () {
                                     <tr>
                                         <th style="text-align: center;">Bulan</th>
                                         <th style="text-align: center;">Akumulasi Premi</th>
-                                        <th style="text-align: center;">Premi</th>
                                         <th style="text-align: center;">Saldo Awal</th>
+                                        <th style="text-align: center;">Premi</th>
                                         <th style="text-align: center;">Pengembangan</th>
                                         <th style="text-align: center;">Saldo Akhir</th>
                                     </tr>
@@ -421,18 +419,18 @@ $(document).ready(function () {
     const tableHeader = [
       "Bulan",
       "Akumulasi Premi",
-      "Premi",
       "Saldo Awal",
+      "Premi",
       "Pengembangan",
       "Saldo Akhir",
     ];
 
     // ---- DATA BODY ----
     let tableRows = histories.map((h) => [
-      h.currentMonth,
+      formatTanggal(h.tglTrx),
       h.akumulasiPremi,
-      premi,
       h.saldoAwal,
+      h.premiTopup,
       h.pengembangan,
       h.saldoAkhir,
     ]);

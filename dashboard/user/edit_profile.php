@@ -4,7 +4,7 @@ require_login();
 
 $user = current_user();
 // only allow users to access their profile; admins can also view via dashboard
-if ($user['role'] !== 'user' && $user['role'] !== 'admin') {
+if ($user['role'] !== 'user' && $user['role'] !== 'admintl') {
     echo 'Akses ditolak.';
     exit;
 }
@@ -29,12 +29,13 @@ if (!$registrasi) {
 }
 
 // helper to normalize date to Y-m-d or return false
-function parse_date_normalize($input) {
+function parse_date_normalize($input)
+{
     $input = trim((string)$input);
     if ($input === '') return false;
     $d = DateTime::createFromFormat('Y-m-d', $input);
     if ($d && $d->format('Y-m-d') === $input) return $d->format('Y-m-d');
-    $formats = ['d-m-Y','d/m/Y','Y/m/d','Y.m.d','d.m.Y','m/d/Y','m-d-Y'];
+    $formats = ['d-m-Y', 'd/m/Y', 'Y/m/d', 'Y.m.d', 'd.m.Y', 'm/d/Y', 'm-d-Y'];
     foreach ($formats as $f) {
         $d = DateTime::createFromFormat($f, $input);
         if ($d) return $d->format('Y-m-d');
@@ -104,14 +105,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $u = mysqli_prepare($conn, 'UPDATE registrasi_peserta SET nama = ?, email = ?, no_hp = ?, tgl_lahir = ?, kelamin = ? WHERE id = ?');
                     $tgl_param = $tgl_lahir_db !== null ? $tgl_lahir_db : '';
                     // determine kelamin to store: prefer submitted valid value, otherwise keep existing
-                    $kelamin_db = in_array($kelamin_in, ['L','P']) ? $kelamin_in : ($reg['kelamin'] ?? '');
+                    $kelamin_db = in_array($kelamin_in, ['L', 'P']) ? $kelamin_in : ($reg['kelamin'] ?? '');
                     mysqli_stmt_bind_param($u, 'sssssi', $name, $email, $no_hp, $tgl_param, $kelamin_db, $id);
                     mysqli_stmt_execute($u);
                 } else {
                     // insert without nik column (we don't collect nik here)
                     $ins = mysqli_prepare($conn, 'INSERT INTO registrasi_peserta (nama, email, no_hp, tgl_lahir, kelamin, created_at) VALUES (?, ?, ?, ?, ?, NOW())');
                     $tgl_param = $tgl_lahir_db !== null ? $tgl_lahir_db : '';
-                    $kelamin_db = in_array($kelamin_in, ['L','P']) ? $kelamin_in : '';
+                    $kelamin_db = in_array($kelamin_in, ['L', 'P']) ? $kelamin_in : '';
                     mysqli_stmt_bind_param($ins, 'sssss', $name, $email, $no_hp, $tgl_param, $kelamin_db);
                     mysqli_stmt_execute($ins);
                     $id = mysqli_insert_id($conn);
@@ -145,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!doctype html>
 <html lang="id">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -156,6 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../assets/css/tailwind.output.css">
     <link rel="icon" href="https://placehold.co/32x32/0033A0/FFFFFF?text=E" type="image/png">
 </head>
+
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
         <?php render_partial('sidebar_user'); ?>
@@ -168,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if (!empty($errors)): ?>
                             <div class="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded">
                                 <ul class="text-sm">
-                                    <?php foreach ($errors as $e) echo '<li>'.htmlspecialchars($e).'</li>'; ?>
+                                    <?php foreach ($errors as $e) echo '<li>' . htmlspecialchars($e) . '</li>'; ?>
                                 </ul>
                             </div>
                         <?php endif; ?>
@@ -209,16 +212,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <i class="fa-solid fa-calendar-week w-4 h-4 text-gray-500"></i>
                                     </div>
                                     <input id="tgl_lahir" name="tgl_lahir" type="text" datepicker datepicker-format="dd M yyyy" datepicker-autohide value="<?php
-                                    $pv = $_POST['tgl_lahir'] ?? ($registrasi['tgl_lahir'] ?? '');
-                                    if ($pv) {
-                                        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $pv)) {
-                                            $dt = DateTime::createFromFormat('Y-m-d', $pv);
-                                            echo $dt ? htmlspecialchars($dt->format('d M Y')) : htmlspecialchars($pv);
-                                        } else {
-                                            echo htmlspecialchars($pv);
-                                        }
-                                    }
-                                    ?>" class="mt-1 block w-full px-8 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="DD-MM-YYYY" autocomplete="off">
+                                                                                                                                                            $pv = $_POST['tgl_lahir'] ?? ($registrasi['tgl_lahir'] ?? '');
+                                                                                                                                                            if ($pv) {
+                                                                                                                                                                if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $pv)) {
+                                                                                                                                                                    $dt = DateTime::createFromFormat('Y-m-d', $pv);
+                                                                                                                                                                    echo $dt ? htmlspecialchars($dt->format('d M Y')) : htmlspecialchars($pv);
+                                                                                                                                                                } else {
+                                                                                                                                                                    echo htmlspecialchars($pv);
+                                                                                                                                                                }
+                                                                                                                                                            }
+                                                                                                                                                            ?>" class="mt-1 block w-full px-8 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="DD-MM-YYYY" autocomplete="off">
                                 </div>
                             </div>
                             <div>
@@ -241,16 +244,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php render_partial('footer'); ?>
     <script>
         // Ensure the datepicker init uses dd-mm-yyyy format (DatepickerInit is loaded globally from footer)
-        (function(){
+        (function() {
             try {
                 var el = document.getElementById('tgl_lahir');
-                if (el && window.DatepickerInit) DatepickerInit.initElement(el, { format: 'dd-mm-yyyy' });
-            } catch(e){}
+                if (el && window.DatepickerInit) DatepickerInit.initElement(el, {
+                    format: 'dd-mm-yyyy'
+                });
+            } catch (e) {}
         })();
     </script>
     <script>
         // Inline client-side validation for edit profile form
-        (function(){
+        (function() {
             var form = document.querySelector('form');
             var clientErr = document.getElementById('client-error');
             var nohp = document.getElementById('no_hp');
@@ -264,13 +269,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     return;
                 }
                 clientErr.classList.remove('hidden');
-                clientErr.innerHTML = '<ul class="text-sm">' + list.map(function(it){ return '<li>'+it+'</li>'; }).join('') + '</ul>';
-                clientErr.scrollIntoView({behavior:'smooth', block:'center'});
+                clientErr.innerHTML = '<ul class="text-sm">' + list.map(function(it) {
+                    return '<li>' + it + '</li>';
+                }).join('') + '</ul>';
+                clientErr.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
             }
 
             if (nohp) {
-                nohp.addEventListener('input', function(){
-                    var v = (this.value||'').replace(/\D/g,'');
+                nohp.addEventListener('input', function() {
+                    var v = (this.value || '').replace(/\D/g, '');
                     // reflect cleaned value (oninput already strips non-digits)
                     this.value = v;
                     if (v !== '' && (v.length < 6 || v.length > 16)) {
@@ -282,7 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (!form) return;
-            form.addEventListener('submit', function(e){
+            form.addEventListener('submit', function(e) {
                 var errs = [];
                 var name = form.nama && form.nama.value && form.nama.value.trim();
                 var email = form.email && form.email.value && form.email.value.trim();
@@ -308,4 +318,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         })();
     </script>
 </body>
+
 </html>
