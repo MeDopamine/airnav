@@ -17,7 +17,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Hanya admintl yang boleh akses
-if (!is_admintl()) {
+if (!is_admintl() && !is_superadmin()) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'msg' => 'Forbidden']);
     exit;

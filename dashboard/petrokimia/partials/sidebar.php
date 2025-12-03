@@ -120,17 +120,23 @@
         ?>
     </nav>
     <div class="p-4 border-t border-gray-700">
-        <a href="../../logout.php" class="nav-item flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
-            <svg class="h-6 w-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-            </svg>
-            <span class="logout-text">Keluar</span>
-        </a>
+        <?php if (is_superadmin()): ?>
+            <a href="/dashboard/superadmin/dashboard.php" class="nav-item flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                <span class="logout-text">Dashboard Superadmin</span>
+            </a>
+        <?php endif; ?>
+        <?php if (is_adminpk()): ?>
+            <a href="../../logout.php" class="nav-item flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                <span class="logout-text">Keluar</span>
+            </a>
+        <?php endif; ?>
     </div>
 </aside>
 
 <!-- Sidebar Mobile (Initially hidden) -->
-<div id="mobile-menu" class="fixed inset-0 z-30 flex md:hidden transform -translate-x-full transition-transform duration-300 ease-in-out transition-opacity duration-200 opacity-0" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="mobile-menu" class="fixed inset-0 z-30 flex md:hidden transform -translate-x-full transition-transform duration-300 ease-in-out opacity-0" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="relative w-64 max-w-xs flex flex-col bg-gray-900 text-white" role="document" tabindex="-1">
         <div class="flex items-center justify-center h-20 border-b border-gray-700">
             <svg class="h-8 w-auto text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -149,9 +155,16 @@
             ?>
         </nav>
         <div class="p-4 border-t border-gray-700">
-            <a href="../../logout.php" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
-                Keluar
-            </a>
+            <?php if (is_superadmin()): ?>
+                <a href="/dashboard/superadmin/dashboard.php" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
+                    Dashboard Superadmin
+                </a>
+            <?php endif; ?>
+            <?php if (is_adminpk()): ?>
+                <a href="../../logout.php" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
+                    Keluar
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 </div>

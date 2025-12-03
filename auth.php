@@ -25,6 +25,10 @@ function require_login() {
     }
 }
 
+function is_superadmin() {
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'superadmin';
+}
+
 function is_admin() {
     return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 }
@@ -46,8 +50,16 @@ function is_admin_or_admintl() {
     return $role === 'admin' || $role === 'admintl';
 }
 
+function require_superadmin() {
+    if (!is_superadmin()) {
+        http_response_code(403);
+        echo 'Terbatas: akses superadmin diperlukan.';
+        exit;
+    }
+}
+
 function require_admin() {
-    if (!is_admin()) {
+    if (!is_admin() && !is_superadmin()) {
         http_response_code(403);
         echo 'Terbatas: akses admin diperlukan.';
         exit;
@@ -55,7 +67,7 @@ function require_admin() {
 }
 
 function require_admin_or_admintl() {
-    if (!is_admin_or_admintl()) {
+    if (!is_admin_or_admintl() && !is_superadmin()) {
         http_response_code(403);
         echo 'Terbatas: akses admin diperlukan.';
         exit;
@@ -63,7 +75,7 @@ function require_admin_or_admintl() {
 }
 
 function require_adminbl() {
-    if (!is_adminbl()) {
+    if (!is_adminbl() && !is_superadmin()) {
         http_response_code(403);
         echo 'Terbatas: akses admin Bulog diperlukan.';
         exit;
@@ -71,7 +83,7 @@ function require_adminbl() {
 }
 
 function require_adminpk() {
-    if (!is_adminpk()) {
+    if (!is_adminpk() && !is_superadmin()) {
         http_response_code(403);
         echo 'Terbatas: akses admin Petrokimia diperlukan.';
         exit;

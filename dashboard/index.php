@@ -5,12 +5,15 @@ include_once __DIR__ . '/partials/_init.php';
 // require login
 include_once __DIR__ . '/../auth.php';
 require_login();
-// only allow admin and admintl to access main dashboard; adminbl goes to bulog
-if (!is_admin_or_admintl()) {
-    header('Location: user/dashboard.php');
+// only allow admin, admintl, and superadmin to access main dashboard; adminbl goes to bulog; adminpk goes to petrokimia
+if (!is_admin_or_admintl() && !is_superadmin()) {
+    header('Location: index.php');
     exit;
 } elseif (is_adminbl()) {
     header('Location: bulog/data_peserta.php');
+    exit;
+} elseif (is_adminpk()) {
+    header('Location: petrokimia/dashboard.php');
     exit;
 }
 ?>
@@ -50,7 +53,7 @@ if (!is_admin_or_admintl()) {
                     <div class="w-full max-w-2xl">
                         <!-- Kartu Upload Data Peserta -->
                         <?php if (!is_admintl()): ?>
-                            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                                 <div class="p-6">
                                     <h2 class="text-xl font-semibold text-gray-800">Upload Data Peserta</h2>
                                     <p class="text-sm text-gray-500 mt-2">
@@ -85,7 +88,7 @@ if (!is_admin_or_admintl()) {
                         <?php endif; ?>
 
                         <!-- Kartu Upload Invoice -->
-                        <?php if (is_admintl()): ?>
+                        <?php if (is_admintl() || is_superadmin()): ?>
                             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                                 <div class="p-6">
                                     <h2 class="text-xl font-semibold text-gray-800">Upload Invoice</h2>
