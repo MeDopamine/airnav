@@ -71,38 +71,38 @@ include_once __DIR__ . '/partials/_init.php';
                                         <p class="text-lg font-semibold text-gray-900" id="data-polis">-</p>
                                     </div>
                                 </div>
-                            <!-- Detail Premi Table -->
-                            <div class="mt-8 border border-gray-200 rounded-lg shadow-sm p-3">
-                                <div class="overflow-x-auto">
-                                    <table id="detail-premi-table" class="w-full display stripe hover bg-white" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th class="dt-center text-center">Bulan</th>
-                                                <th class="dt-center text-center">Saldo Awal</th>
-                                                <th class="dt-center text-center">Premi</th>
-                                                <th class="dt-center text-center">Top Up</th>
-                                                <th class="dt-center text-center">Biaya</th>
-                                                <th class="dt-center text-center">Withdraw</th>
-                                                <th class="dt-center text-center">Pengembangan</th>
-                                                <th class="dt-center text-center">Saldo Akhir</th>
-                                                <th class="dt-center text-center">Jumlah Peserta</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
+                                <!-- Detail Premi Table -->
+                                <div class="mt-8 border border-gray-200 rounded-lg shadow-sm p-3">
+                                    <div class="overflow-x-auto">
+                                        <table id="detail-premi-table" class="w-full display stripe hover bg-white" style="width:100%">
+                                            <thead>
+                                                <tr>
+                                                    <th class="dt-center text-center">Bulan</th>
+                                                    <th class="dt-center text-center">Saldo Awal (Rp)</th>
+                                                    <th class="dt-center text-center">Premi (Rp)</th>
+                                                    <th class="dt-center text-center">Top Up (Rp)</th>
+                                                    <th class="dt-center text-center">Biaya (Rp)</th>
+                                                    <th class="dt-center text-center">Withdraw (Rp)</th>
+                                                    <th class="dt-center text-center">Pengembangan (Rp)</th>
+                                                    <th class="dt-center text-center">Saldo Akhir (Rp)</th>
+                                                    <th class="dt-center text-center">Jumlah Peserta</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Download Button -->
-                            <div class="mt-6 flex justify-center">
-                                <button id="btn-download" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-download"></i>
-                                    Excel
-                                </button>
+                                <!-- Download Button -->
+                                <div class="mt-6 flex justify-center">
+                                    <button id="btn-download" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
+                                        <i class="fa-solid fa-download"></i>
+                                        Excel
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
             </main>
         </div>
     </div>
@@ -119,4 +119,5 @@ include_once __DIR__ . '/partials/_init.php';
     <!-- Load Data Script -->
     <script src="./assets/js/load-data.js"></script>
 </body>
+
 </html>

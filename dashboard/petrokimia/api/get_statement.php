@@ -11,7 +11,7 @@ $polis = "TS16AJTL00000137" ?? '';
 $token = "3VGUkzXpm0mdkE1jDsPALWkbOmLfFbOJxF0O8rHc";   // contoh: eyJhbGciOiJIUzI1...
 
 $baseUrl = "https://api-gina.taspenlife.com/acs/report/individuals";
-$url = $baseUrl . "?tipe=cekDashboardPetrokimia" ;
+$url = $baseUrl . "?tipe=cekDashboardPetrokimia";
 
 // --- CURL REQUEST ---
 $curl = curl_init($url);
@@ -50,7 +50,7 @@ if (isset($data['acs/report/individu']) && is_array($data['acs/report/individu']
                 $value = floatval($row[$field]);
 
                 // Format Rupiah
-                $formatted = "Rp " . number_format($value, 0, ',', '.');
+                $formatted = number_format($value, 0, ',', '.');
 
                 $data['acs/report/individu'][$index][$field] = $formatted;
             }

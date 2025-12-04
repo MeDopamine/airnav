@@ -306,7 +306,7 @@ $(document).ready(function () {
         histories.forEach((history) => {
           rows += `
                         <tr>
-                            <td>${formatTanggal(history.tglTrx)}</td>
+                            <td>${formatTanggal(history.Bulan)}</td>
                             <td>${history.akumulasiPremi}</td>
                             <td>${history.saldoAwal}</td>
                             <td>${history.premiTopup}</td>
@@ -343,11 +343,11 @@ $(document).ready(function () {
                                 <thead>
                                     <tr>
                                         <th style="text-align: center;">Bulan</th>
-                                        <th style="text-align: center;">Akumulasi Premi</th>
-                                        <th style="text-align: center;">Saldo Awal</th>
-                                        <th style="text-align: center;">Premi</th>
-                                        <th style="text-align: center;">Pengembangan</th>
-                                        <th style="text-align: center;">Saldo Akhir</th>
+                                        <th style="text-align: center;">Akumulasi Premi (Rp)</th>
+                                        <th style="text-align: center;">Saldo Awal (Rp)</th>
+                                        <th style="text-align: center;">Premi (Rp)</th>
+                                        <th style="text-align: center;">Pengembangan (Rp)</th>
+                                        <th style="text-align: center;">Saldo Akhir (Rp)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -427,7 +427,7 @@ $(document).ready(function () {
 
     // ---- DATA BODY ----
     let tableRows = histories.map((h) => [
-      formatTanggal(h.tglTrx),
+      formatTanggal(h.Bulan),
       h.akumulasiPremi,
       h.saldoAwal,
       h.premiTopup,
