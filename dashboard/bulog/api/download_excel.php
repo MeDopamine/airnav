@@ -70,7 +70,16 @@ $sheet->setCellValue('A1', 'Saldo Dana Taspen Save');
 // Baris 2: Karyawan Perum BULOG
 $sheet->setCellValue('A2', 'Karyawan Perum BULOG');
 // Baris 3: Periode 31 Oktober 2025 (Anda mungkin ingin mengganti tanggal ini dengan tanggal saat ini)
-$sheet->setCellValue('A3', 'Periode ' . date('d F Y', strtotime('2025-10-31')));
+// Mengambil timestamp untuk hari terakhir bulan sebelumnya,
+// berdasarkan tanggal hari ini (3 Desember 2025).
+$tanggal_periode = strtotime('last day of previous month');
+
+// Output akan menjadi: 30 November 2025
+$string_periode = 'Periode ' . date('d F Y', $tanggal_periode);
+
+// Masukkan ke dalam sel
+$sheet->setCellValue('A3', $string_periode);
+// $sheet->setCellValue('A3', 'Periode ' . date('d F Y'));
 
 // Merge dan Center Header
 $sheet->mergeCells('A1:' . $lastCol . '1');
@@ -128,6 +137,12 @@ foreach ($data as $entry) {
             continue;
         }
         $value = $entry[$key] ?? '';
+
+        if (strtolower($key) === 'notas' || strtolower($key) === 'employeeno') {
+            $sheet->getStyle($col . $row)
+                ->getNumberFormat()
+                ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+        }
 
         // --- Date Formatting (TGL LAHIR, TMT ASURANSI) ---
         if ((strpos(strtolower($key), 'dob') !== false || strpos(strtolower($key), 'effstartdate') !== false) && !empty($value)) {

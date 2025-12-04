@@ -42,7 +42,7 @@ include_once __DIR__ . '/partials/_init.php';
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
                         <h2 class="text-xl font-semibold text-gray-800">Data Peserta</h2>
-                        <p class="text-sm text-gray-500 mt-1">Cari data peserta berdasarkan nama atau NIK</p>
+                        <p class="text-sm text-gray-500 mt-1">Cari data peserta berdasarkan Nama atau Notas</p>
                     </div>
                     <div class="p-6">
                         <!-- Search Bar -->
@@ -52,13 +52,13 @@ include_once __DIR__ . '/partials/_init.php';
                                     <label
                                         for="search-nama"
                                         class="block text-sm font-medium text-gray-700 mb-2">
-                                        Cari Peserta (Nama/NIK)
+                                        Cari Peserta (Nama/Notas)
                                     </label>
                                     <div class="flex gap-3">
                                         <input
                                             type="text"
                                             id="search-nama"
-                                            placeholder="Masukkan nama atau NIK peserta..."
+                                            placeholder="Masukkan Nama atau Notas peserta..."
                                             class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" />
                                         <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
                                             <i class="fa-solid fa-search"></i>
@@ -73,7 +73,7 @@ include_once __DIR__ . '/partials/_init.php';
                                             id="btn-export"
                                             class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
                                             <i class="fa-solid fa-file-export"></i>
-                                            Export Excel
+                                            Export Semua Peserta
                                         </button>
                                     </div>
                                 </div>
@@ -140,7 +140,7 @@ include_once __DIR__ . '/partials/_init.php';
                         <!-- Initial State -->
                         <div id="initial-state" class="text-center py-12">
                             <i class="fa-solid fa-users fa-3x text-gray-400 mb-4"></i>
-                            <p class="text-sm text-gray-500">Ketik nama atau NIK peserta untuk mencari data</p>
+                            <p class="text-sm text-gray-500">Ketik Nama atau Notas peserta untuk mencari data</p>
                         </div>
                     </div>
                 </div>

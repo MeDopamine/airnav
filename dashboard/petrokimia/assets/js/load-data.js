@@ -12,16 +12,52 @@ $(document).ready(function () {
 
   // Format negative numbers with parentheses
   function formatNegative(value) {
-  if (!value || isNaN(value)) return "-";
-  const num = parseFloat(value);
-  return "(" + num.toLocaleString("id-ID", { maximumFractionDigits: 0 }) + ")";
+    // 1. Cek validitas: Jika null, undefined, atau bukan angka yang valid, kembalikan "-"
+    if (!value || isNaN(value)) {
+      return "-";
+    }
+
+    // Pastikan nilai adalah string/number dan ubah ke float
+    const num = parseFloat(value);
+
+    // Ambil nilai absolut (menghilangkan tanda minus jika ada)
+    const absoluteNum = Math.abs(num);
+
+    // Format angka ke locale Indonesia (misalnya 10.000)
+    const formattedNum = absoluteNum.toLocaleString("id-ID", {
+      maximumFractionDigits: 0,
+    });
+
+    // Cek apakah nilai aslinya negatif
+    if (num < 0) {
+      // Jika aslinya negatif, tampilkan tanpa tanda minus dan tanpa kurung.
+      return "(" + formattedNum + ")";
+    } else {
+      // Jika positif atau nol, tampilkan angka biasa.
+      // Jika Anda tetap ingin mengembalikan angka positif dalam kurung (sesuai fungsi asli),
+      // gunakan logika di bawah ini. Namun, berdasarkan permintaan Anda,
+      // diasumsikan Anda hanya ingin menampilkan angka positif/nol apa adanya.
+      return "(" + formattedNum + ")";
+    }
   }
 
   // Format date
   function formatDate(dateString) {
-    const options = { year: "numeric", month: "short", day: "numeric" };
+    // Pastikan dateString valid (misalnya, "2025-12-03")
     const date = new Date(dateString);
-    return date.toLocaleDateString("id-ID", options);
+
+    // Cek apakah tanggal valid
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+
+    // Gunakan Intl.DateTimeFormat untuk format lokal "dd/mm/yyyy"
+    // Format ini mirip "d/m/Y" di PHP, namun menggunakan slash
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(date);
   }
 
   // Load data on page load
@@ -36,15 +72,15 @@ $(document).ready(function () {
       dataType: "json",
       success: function (response) {
         console.log("API Response:", response);
-        
+
         // Hide loading state
         $("#loading-state").addClass("hidden");
 
         if (response["acs/report/individu"]) {
           const data = response["acs/report/individu"];
           currentData = data;
-          nama = "Petrokimia";
-          polis = "3141";
+          nama = "PT PETROKIMIA GRESIK";
+          polis = "24090123106";
 
           // Populate personal data
           $("#data-nama").text(nama);
@@ -62,7 +98,9 @@ $(document).ready(function () {
       error: function (xhr, status, error) {
         console.error("API Error:", error, xhr);
         $("#loading-state").addClass("hidden");
-        showError("Gagal memuat data dari API: " + (xhr.responseJSON?.message || status));
+        showError(
+          "Gagal memuat data dari API: " + (xhr.responseJSON?.message || status)
+        );
       },
     });
   }
@@ -84,7 +122,7 @@ $(document).ready(function () {
       TOTALPREMIUM: h.TOTALPREMIUM || "-",
       TOPUPAMOUNT: h.TOPUPAMOUNT || "-",
       biaya: h.biaya ? formatNegative(h.biaya) : "-",
-      WITHDRAW: h.WITHDRAW  || "-",
+      WITHDRAW: h.WITHDRAW || "-",
       INVESTMENT: h.INVESTMENT || "-",
       ENDBALANCE: h.ENDBALANCE || "-",
       NUMBEROFMEMBER: h.NUMBEROFMEMBER || "-",
@@ -125,8 +163,8 @@ $(document).ready(function () {
 
     downloadExcel(
       currentData,
-      nama,
-      polis,
+      "PT PETROKIMIA GRESIK",
+      "24090123106",
       formatCurrency(currentData.TOTALPREMIUM)
     );
   });
