@@ -2,7 +2,7 @@
 require_once '../../auth.php';
 require_login();
 // only admin may read riwayat upload
-if (!is_admin()) {
+if (!is_admin() && !is_superadmin()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'error' => 'Akses ditolak']);

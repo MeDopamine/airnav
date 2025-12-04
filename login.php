@@ -57,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $_SESSION['approved'] = $approved;
             // redirect users to their profile area, admins to main dashboard, adminbl to bulog
-            if (isset($row['role']) && $row['role'] === 'user') {
-                header('Location: /dashboard/user/dashboard.php');
+            if (isset($row['role']) && $row['role'] === 'superadmin') {
+                header('Location: /dashboard/superadmin/dashboard.php');
             } elseif (isset($row['role']) && $row['role'] === 'adminbl') {
                 header('Location: /dashboard/bulog/data_peserta.php');
             } elseif (isset($row['role']) && $row['role'] === 'adminpk') {

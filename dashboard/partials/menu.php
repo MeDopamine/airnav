@@ -28,12 +28,6 @@ $menuItems = [
         'icon' => '<i class="fa-solid fa-file-invoice mr-3" aria-hidden="true"></i>',
         'visible_to' => ['admintl']
     ],
-    // [
-    //     'label' => 'Manajemen Peserta',
-    //     'href' => 'manajemen_peserta.php',
-    //     'icon' => '<i class="fa-solid fa-user-cog mr-3" aria-hidden="true"></i>',
-    //     'visible_to' => ['admintl']
-    // ],
     [
         'label' => 'Riwayat Invoice',
         'href' => 'riwayat_invoice.php',
@@ -45,7 +39,7 @@ $menuItems = [
 foreach ($menuItems as $idx => $item) {
     // Check if menu item is visible to current user role
     $visibleTo = $item['visible_to'] ?? ['admin', 'admintl'];
-    if (!in_array($userRole, $visibleTo)) {
+    if (!in_array($userRole, $visibleTo) && $userRole !== 'superadmin') {
         continue;
     }
 
