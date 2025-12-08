@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_login();
-if (!is_admin_or_admintl()) {
+if (!is_admin_or_admintl() && !is_superadmin()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode([

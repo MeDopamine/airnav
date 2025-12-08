@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../auth.php';
 require_login();
 // only admin may update peserta
-if (!is_admin()) {
+if (!is_admin() && !is_superadmin()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'msg' => 'Akses ditolak']);

@@ -23,7 +23,10 @@ curl_setopt_array($curl, [
     CURLOPT_HTTPHEADER => [
         "Accept: application/json",
         "Authorization: Bearer $token"
-    ]
+    ],
+    CURLOPT_TIMEOUT => 180, // 180 detik
+    CURLOPT_SSL_VERIFYPEER => true,
+    CURLOPT_SSL_VERIFYHOST => 2,
 ]);
 
 $response = curl_exec($curl);
@@ -32,8 +35,9 @@ curl_close($curl);
 
 $apiData = json_decode($response, true);
 
-if ($httpCode !== 200 || empty($apiData['acs/report/individu'])) {
-    die("Tidak ada data ditemukan.");
+if ($httpCode !== 200 || empty($apiData['acs/report/individu']) || !is_array($apiData['acs/report/individu'])) {
+    // Tambahkan kondisi untuk data yang tidak valid
+    die("Data tidak valid atau API error. HTTP Code: $httpCode");
 }
 
 $data = $apiData['acs/report/individu'];
@@ -126,65 +130,71 @@ for ($i = 'A'; $i <= $lastCol; $i++) {
 
 ## 3. Pengisian Data dan Formatting (Baris 6 dst) <tbody>
 
-$row = $startRowData + 1;
-$no = 1; // Inisialisasi nomor urut jika diperlukan
+## 3. Pengisian Data dan Formatting (Baris 6 dst) <tbody>
+
+$dataToExport = [];
+$no = 1;
+
 foreach ($data as $entry) {
-    $col = 'A';
-    $sheet->setCellValue($col . $row, $no);
-    $col++;
+    $row_data = [];
+    $row_data[] = $no; // Kolom NO
+
     foreach ($keys as $key) {
         if ($key === 'NO') {
             continue;
         }
         $value = $entry[$key] ?? '';
 
-        if (strtolower($key) === 'notas' || strtolower($key) === 'employeeno') {
-            $sheet->getStyle($col . $row)
-                ->getNumberFormat()
-                ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
-        }
-
         // --- Date Formatting (TGL LAHIR, TMT ASURANSI) ---
         if ((strpos(strtolower($key), 'dob') !== false || strpos(strtolower($key), 'effstartdate') !== false) && !empty($value)) {
             $date = date_create($value);
-            if ($date) {
-                // Set nilai dan format sebagai teks 'd-m-Y' (sesuai gambar)
-                $sheet->setCellValue($col . $row, date_format($date, 'd/m/Y')); // Menggunakan d/m/Y seperti di gambar
-            } else {
-                $sheet->setCellValue($col . $row, $value);
-            }
+            $value = $date ? date_format($date, 'd/m/Y') : $value;
         }
 
         // --- Number Formatting (SALDO AKHIR) ---
         elseif (strpos(strtolower($key), 'endbalance') !== false && is_numeric($value)) {
-            // Hilangkan pemformatan string (Rp/koma) dan set sebagai angka
-            $numericValue = floatval(preg_replace('/[^\d\.]/', '', $value));
-            $sheet->setCellValue($col . $row, $numericValue);
-
-            // Terapkan format angka (misalnya, #,##0.00 untuk dua desimal atau #,##0 untuk bilangan bulat)
-            $sheet->getStyle($col . $row)->getNumberFormat()->setFormatCode('#,##0');
-
-            // Set Alignment ke Kanan (sesuai format saldo)
-            $sheet->getStyle($col . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            // Hilangkan pemformatan string (Rp/koma) dan set sebagai float
+            $value = floatval(preg_replace('/[^\d\.]/', '', $value));
         }
 
-        // --- Default/Teks Formatting ---
-        else {
-            $sheet->setCellValue($col . $row, $value);
-        }
-
-        $col++;
+        $row_data[] = $value;
     }
+
+    $dataToExport[] = $row_data;
     $no++;
-    $row++;
 }
+
+// ⚠️ Pengisian Data dengan fromArray (Jauh lebih cepat!)
+if (!empty($dataToExport)) {
+    $sheet->fromArray(
+        $dataToExport,  // Array data yang sudah diproses
+        NULL,           // Nilai Null sebagai string kosong
+        'A' . ($startRowData + 1) // Mulai dari baris setelah header
+    );
+}
+
+$endRowData = $startRowData + count($dataToExport);
+
+// Terapkan formatting untuk NOTAS dan NIP (kolom B dan C)
+$sheet->getStyle('B' . ($startRowData + 1) . ':C' . $endRowData)
+    ->getNumberFormat()
+    ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
+// Terapkan formatting angka untuk SALDO AKHIR (kolom terakhir, misalnya G)
+$saldoCol = $lastCol;
+$sheet->getStyle($saldoCol . ($startRowData + 1) . ':' . $saldoCol . $endRowData)
+    ->getNumberFormat()
+    ->setFormatCode('#,##0');
+
+// Terapkan Alignment Kanan untuk SALDO AKHIR
+$sheet->getStyle($saldoCol . ($startRowData + 1) . ':' . $saldoCol . $endRowData)
+    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
 // Styling Borders untuk semua data (dari Baris 5 sampai baris terakhir)
 $styleBorderArray = [
     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF000000']]],
 ];
-$sheet->getStyle('A' . $startRowData . ':' . $lastCol . ($row - 1))->applyFromArray($styleBorderArray);
-
+$sheet->getStyle('A' . $startRowData . ':' . $lastCol . $endRowData)->applyFromArray($styleBorderArray);
 
 // Output File Download
 $filename = "Saldo_Dana_Taspen_Save_BULOG_" . date("Ymd") . ".xlsx";
