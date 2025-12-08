@@ -2,6 +2,9 @@
 $(document).ready(function () {
   var pesertaTable = null;
   var currentSearchKeyword = "";
+  const $btnExport = $("#btn-export");
+  const $exportIcon = $("#export-icon");
+  const $exportText = $("#export-text");
 
   // Function untuk format jenis premi
   function formatJenisPremi(jenisValue) {
@@ -271,9 +274,75 @@ $(document).ready(function () {
     $("#search-nama").focus();
   });
 
-  // Export button
-  $("#btn-export").click(function () {
-    window.location.href = "api/download_excel.php";
+  /**
+   * Menampilkan status loading pada tombol Export.
+   */
+  function showExportLoading() {
+    $btnExport.prop("disabled", true); // Non-aktifkan tombol
+    $btnExport.addClass("bg-green-700 cursor-not-allowed"); // Beri style disabled
+    $btnExport.removeClass("hover:bg-green-700");
+    $exportIcon.addClass("hidden");
+    $exportText.text("Mempersiapkan File...");
+
+    // Tampilkan SweetAlert Toast untuk konfirmasi pengguna
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "info",
+      title: "Memproses Export...",
+      text: "File akan otomatis ter-download setelah siap.",
+      showConfirmButton: false,
+      timer: 5000,
+      timerProgressBar: true,
+    });
+  }
+
+  /**
+   * Menyembunyikan status loading pada tombol Export.
+   */
+  function hideExportLoading() {
+    $btnExport.prop("disabled", false); // Aktifkan kembali tombol
+    $btnExport.removeClass("bg-green-700 cursor-not-allowed");
+    $btnExport.addClass("hover:bg-green-700");
+    $exportIcon.removeClass("hidden");
+    $exportText.text("Export Semua Peserta");
+  }
+
+  // --- Event Listener untuk Tombol Export ---
+  $btnExport.on("click", function (e) {
+    e.preventDefault();
+    showExportLoading();
+
+    fetch("api/download_excel.php") // Asumsi endpoint baru yang merespons JSON
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+        // Asumsi server merespons dengan blob/file data
+        return response.blob();
+      })
+      .then((blob) => {
+        // Logika untuk membuat link download dari blob
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download =
+          "Saldo_Dana_Taspen_Save_BULOG_" +
+          new Date().toISOString().slice(0, 10).replace(/-/g, "") +
+          ".xlsx";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((error) => {
+        console.error("Export Error:", error);
+        Swal.fire("Gagal!", "Terjadi kesalahan saat mengekspor data.", "error");
+      })
+      .finally(() => {
+        // Tombol diaktifkan kembali HANYA setelah respons diterima (success/fail)
+        hideExportLoading();
+      });
   });
 
   // Delegated click handler for detail button

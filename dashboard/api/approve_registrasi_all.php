@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_login();
-if (!is_admintl()) {
+if (!is_admintl() && !is_superadmin()) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'error' => 'Akses ditolak']);
     exit;

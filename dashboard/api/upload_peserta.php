@@ -6,7 +6,7 @@
 require_once __DIR__ . '/../../auth.php';
 require_login();
 // only admin may upload peserta files
-if (!is_admin()) {
+if (!is_admin() && !is_superadmin()) {
   http_response_code(403);
   header('Content-Type: application/json');
   echo json_encode(['error' => 'Akses ditolak']);

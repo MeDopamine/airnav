@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Masuk - AirNav</title>
+    <title>Masuk - MyTL Biz</title>
     <!-- Icon -->
     <link rel="icon" href="https://placehold.co/32x32/0033A0/FFFFFF?text=M" type="image/png">
     <link rel="stylesheet" href="/dashboard/assets/css/tailwind.output.css">
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="min-h-screen bg-gray-100 flex items-center justify-center">
     <div class="max-w-md w-full bg-white rounded-xl shadow-md p-8">
         <div class="text-center mb-6">
-            <h1 class="text-2xl font-semibold text-gray-800">Masuk ke AirNav</h1>
+            <h1 class="text-2xl font-semibold text-gray-800">Masuk ke MyTL Biz</h1>
             <p class="text-sm text-gray-500 mt-2">Masukkan email dan password Anda untuk melanjutkan</p>
         </div>
 

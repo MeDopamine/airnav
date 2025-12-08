@@ -1,4 +1,5 @@
 <?php
+
 /**
  * API: delete_riwayat_upload.php
  * Menghapus satu riwayat upload berdasarkan ID
@@ -8,7 +9,7 @@ require_once __DIR__ . '/../../auth.php';
 require_login();
 
 // Only admin can delete
-if (!is_admin()) {
+if (!is_admin() && !is_superadmin()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'msg' => 'Akses ditolak']);
@@ -40,28 +41,26 @@ try {
     // Delete from riwayat_upload table
     $sql = "DELETE FROM riwayat_upload WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    
+
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
-    
+
     $stmt->bind_param("i", $riwayatId);
-    
+
     if (!$stmt->execute()) {
         throw new Exception("Execute failed: " . $stmt->error);
     }
-    
+
     $affectedRows = $stmt->affected_rows;
     $stmt->close();
-    
+
     if ($affectedRows > 0) {
         echo json_encode(['ok' => true, 'msg' => 'Riwayat berhasil dihapus']);
     } else {
         echo json_encode(['ok' => false, 'msg' => 'Riwayat tidak ditemukan']);
     }
-    
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'msg' => 'Error: ' . $e->getMessage()]);
 }
-?>

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../auth.php';
 require_login();
 // only admin may list periode
-if (!is_admin()) {
+if (!is_admin() && !is_superadmin()) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'data' => [], 'error' => 'Akses ditolak']);
@@ -32,4 +32,4 @@ if ($res) {
     }
     mysqli_free_result($res);
 }
-echo json_encode(['ok'=>true, 'data'=>$data]);
+echo json_encode(['ok' => true, 'data' => $data]);
